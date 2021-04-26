@@ -39,7 +39,7 @@ Then edit the `/etc/hosts` file and add entries like this, using the external IP
 - 10.108.72.131 login.example.com 
 - 10.108.72.131 admin.example.com 
 
-Also add the root certificate at `certs/example.com.ca.pem` to Keychain Access / System / Certificates
+Also trust the root certificate at `certs/example.com.ca.pem` by adding it to Keychain Access under System/Certificates
 
 ## Deploy a Simple Web Host
 
@@ -78,7 +78,7 @@ The main thing that works differently is the ingress which now uses Istio specif
 
 ## Use the System
 
-Then browse to these working URLs:
+Browse to these working URLs:
 
 - https://admin.example.com/admin
 - https://login.example.com/oauth/v2/oauth-anonymous/.well-known/openid-configuration

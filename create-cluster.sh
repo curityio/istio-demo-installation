@@ -2,7 +2,6 @@
 
 ######################################################################
 # A script to use Istio with a Minikube cluster on a Developer MacBook
-# https://istio.io/latest/docs/setup/getting-started
 ######################################################################
 
 #
@@ -18,6 +17,7 @@ eval $(minikube docker-env --profile example)
 
 #
 # Download Istio to the Macbook
+# https://istio.io/latest/docs/setup/getting-started
 #
 cd ~
 curl -L https://istio.io/downloadIstio | sh -
