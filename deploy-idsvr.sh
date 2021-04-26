@@ -51,7 +51,7 @@ kubectl delete -f idsvr/yaml/cluster-conf-job.yaml       2>/dev/null
 # - kubectl get configmap idsvr-configmap -o yaml
 #
 kubectl delete configmap idsvr-configmap 2>/dev/null
-kubectl create configmap idsvr-configmap --from-file='./idsvr/config-backup.xml'
+kubectl create configmap idsvr-configmap --from-file='./idsvr/idsvr-config-backup.xml'
 if [ $? -ne 0 ];
 then
   echo "Problem encountered creating the config map for the Identity Server"

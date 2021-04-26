@@ -94,7 +94,7 @@ Log in to the HAAPI Web Sample with these details:
 Start a shell in a runtime node and call the admin node to get configuration:
 
 - kubectl exec -it pod/dev-idsvr-runtime-84c859d6df-75wvp -- bash
-- curl -u 'admin:Password1' 'https://dev-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
+- curl -k -u 'admin:Password1' 'https://dev-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
 
 ## Problem 1
 
@@ -107,3 +107,8 @@ The result is to override the default and avoid adding a sidecar to the job comp
       metadata:
         annotations:
           sidecar.istio.io/inject: "false"
+
+## Problem 2
+
+For now I have added the same annotation to deployment-admin.yaml and deployment-runtime.yaml.\
+This is meant to be temporary to rule out some categories of problem.
