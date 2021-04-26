@@ -36,7 +36,7 @@ metadata:
   name: idsvr-runtime-virtualservice
 spec:
   hosts:
-  - runtime.example.com
+  - login.example.com
   gateways:
   - idsvr-runtime-gateway
   http:
