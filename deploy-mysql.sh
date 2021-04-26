@@ -36,6 +36,9 @@ then
 fi
 
 #
-# Once the pod comes up we can call it via this command if mysql is installed on the host MacBook:
+# Once the pod comes up we can connect to it as follows from the MacBook:
 # - mysql -h $(minikube ip) -P 30306 -D idsvr -u root -pPassword1
+#
+# From another container we can instead use the following command:
+# - mysql -h mysql-svc -P 3306 -D idsvr -u root -pPassword1
 #
