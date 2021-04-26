@@ -21,7 +21,7 @@ Then view ingress and egress gateways which are used instead of the default Kube
 - kubectl get all -n istio-system
 - kubectl -n istio-system describe service istio-ingressgateway
 
-Then add ~/istio-1.9.3/bin to your PATH environment variable in ~/.zprofile and restart the terminal.
+Then add `~/istio-1.9.3/bin` to your PATH environment variable in ~/.zprofile and restart the terminal.
 
 ## URL Setup
 
@@ -39,11 +39,11 @@ Then edit the `/etc/hosts` file and add entries like this, using the external IP
 - 10.108.72.131 login.example.com 
 - 10.108.72.131 admin.example.com 
 
-Also trust the root certificate at `certs/example.com.ca.pem` by adding it to Keychain Access under System/Certificates
+Also add the root certificate at `certs/example.com.ca.pem` to Keychain Access under System/Certificates.
 
-## Deploy a Simple Web Host
+## Deploy a Very Simple Component
 
-To understand the basics of Kubernetes and Istio routing run this script:
+To understand the basics of Kubernetes and Istio routing see this script:
 
 - ./deploy-webhost.sh
 
@@ -53,7 +53,7 @@ To understand the basics of Kubernetes and Istio routing run this script:
 
 ## Deploy the Curity Identity Server
 
-In a terminal, move to the curity-deployment folder and execute these commands:
+Execute these commands to deploy a SQL database and the Identity Server to the cluster:
 
 - ./deploy-mysql.sh
 - ./deploy-idsvr.sh
@@ -94,12 +94,12 @@ Log in to the HAAPI Web Sample with these details:
 Start a shell in a runtime node and call the admin node to get configuration:
 
 - kubectl exec -it pod/dev-idsvr-runtime-84c859d6df-75wvp -- bash
-- curl -i -k https://dev-idsvr-admin-svc:6749/admin/login/login.html
+- curl -u 'admin:Password1' 'https://dev-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
 
-## Helm Chart Problem
+## Problem 1
 
 The one issue I found is explained in the [Deploy Idsvr Script](./deploy-idsvr.sh).\
-To fix it I had to reverse engineer the Helm chart and edit the [Cluster Conf Job](./idsvr/yaml/cluster-conf-job.yaml).
+To fix it I had to reverse engineer the Helm chart and edit the [Cluster Conf Job](./idsvr/yaml/cluster-conf-job.yaml).\
 The result is to override the default and avoid adding a sidecar to the job component:
 
 - spec:

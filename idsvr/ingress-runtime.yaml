@@ -12,7 +12,7 @@ spec:
   servers:
   - port:
       number: 443
-      name: https-idsvr-runtime
+      name: https
       protocol: HTTPS
     tls:
       mode: SIMPLE
@@ -36,7 +36,7 @@ metadata:
   name: idsvr-runtime-virtualservice
 spec:
   hosts:
-  - login.example.com
+  - runtime.example.com
   gateways:
   - idsvr-runtime-gateway
   http:

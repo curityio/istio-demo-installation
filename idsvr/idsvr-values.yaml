@@ -2,7 +2,7 @@
 # A customised values file for the Curity Identity Server
 #
 
-replicaCount: 2
+replicaCount: 1
 
 # Point to the custom image produced by our docker file
 image:

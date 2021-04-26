@@ -47,5 +47,5 @@ fi
 
 #
 # Once the pod comes up we can access it over the following URL:
+# - curl https://web.example.com
 #
-# curl https://web.example.com

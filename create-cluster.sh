@@ -11,11 +11,6 @@
 minikube start --cpus=4 --memory=16384 --disk-size=100g --kubernetes-version=v1.21.0 --profile example
 
 #
-# Ensure that Docker points to the above profile
-#
-eval $(minikube docker-env --profile example)
-
-#
 # Download Istio to the Macbook
 # https://istio.io/latest/docs/setup/getting-started
 #

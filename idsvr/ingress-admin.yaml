@@ -12,7 +12,7 @@ spec:
   servers:
   - port:
       number: 443
-      name: https-idsvr-admin
+      name: https
       protocol: HTTPS
     tls:
       mode: SIMPLE

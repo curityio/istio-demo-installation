@@ -1,17 +1,10 @@
 #!/bin/bash
 
-############################################################################################
+#####################################################################################
 # Deploy a basic MySql server instance and manage backups and restores via scripts
-#
-# I can then connect to it from my MacBook host via this command:
-# - mysql -h $(minikube ip) -P 30306 -D idsvr -u root -pPassword1
-#
-# From the pod use this command instead:
-# - mysql -h 127.0.0.1 -P 3306 -D idsvr -u root -pPassword1
-#
-# The Curity Identity Server will connect to the database using the Kubernetes service name:
-# - jdbc:mysql://mysql-svc/idsvr
-############################################################################################
+# The Curity Identity Server will connect to it via this JDBC URL inside the cluster:
+# - jdbc:mysql://mysql-svc/idsvr?serverTimezone=Europe/Stockholm
+#####################################################################################
 
 # Point to our minikube profile
 minikube profile example
@@ -41,3 +34,8 @@ then
   echo "Problem encountered deploying the MySql service"
   exit 1
 fi
+
+#
+# Once the pod comes up we can call it via this command if mysql is installed on the host MacBook:
+# - mysql -h $(minikube ip) -P 30306 -D idsvr -u root -pPassword1
+#
