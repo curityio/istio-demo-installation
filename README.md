@@ -12,7 +12,7 @@ Install Docker for MacOS if required, then install Minikube as a local Kubernete
 
 ## Cluster Base Setup
 
-Run this script:
+Run this script, and also read it to understand the setup:
 
 - ./create-cluster.sh
 
@@ -25,9 +25,15 @@ Then add ~/istio-1.9.3/bin to your PATH environment variable in ~/.zprofile and 
 
 ## URL Setup
 
-Run `minikube tunnel --profile example` to provide an external IP address.\
-Then run `kubectl get svc istio-ingressgateway -n istio-system` to identify it.\
-Then run `sudo vi /etc/hosts`and add entries similar to this using the external IP address:
+Run this command in a separate terminal, which provides an external IP address needed for ingress to work:
+
+ - minikube tunnel --profile example
+
+Then run this command and get the value of the EXTERNAL-IP field:
+
+- kubectl get svc istio-ingressgateway -n istio-system
+
+Then edit the `/etc/hosts` file and add entries like this, using the external IP address:
 
 - 10.108.72.131 web.example.com
 - 10.108.72.131 login.example.com 
@@ -52,23 +58,52 @@ In a terminal, move to the curity-deployment folder and execute these commands:
 - ./deploy-mysql.sh
 - ./deploy-idsvr.sh
 
-Then browse to these URLs:
-
-- https://admin.example.com/admin
-- https://login.example.com/oauth/v2/oauth-anonymous/.well-known/openid-configuration
-
 ## View Sidecar Components
 
 Note how all pods, including those for the Curity Identity Server, now include a sidecar component called 'istio-proxy':
 
-- kubectl describe pod/curity-idsvr-runtime-66df984bf8-jbjmz
+- kubectl get pods
+- kubectl describe pod/dev-idsvr-runtime-84c859d6df-75wvp
 
-## TODO:
+This is because we made Istio injection the default behavior:
 
-- Configuration pod has a problem:
-  kubectl get events --sort-by='.lastTimestamp'
-  'kubectl describe pod' previously showed the cluster-conf-job is completed but it shows as NotReady in 'kubectl get all'
+- kubectl label namespace default istio-injection=enabled
 
-- MySql from outside
-  Does NodePort work with Istio?
+## View Ingress Details
 
+The main thing that works differently is the ingress which now uses Istio specific components:
+
+- [Admin Ingress](./idsvr/ingress-admin.yaml)
+- [Runtime Ingress](./idsvr/ingress-runtime.yaml)
+
+## Use the System
+
+Then browse to these working URLs:
+
+- https://admin.example.com/admin
+- https://login.example.com/oauth/v2/oauth-anonymous/.well-known/openid-configuration
+
+Log in to the HAAPI Web Sample with these details:
+
+- https://login.example.com/demo-client.html
+- john.doe
+- Password1
+
+## Make Calls between PODs
+
+Start a shell in a runtime node and call the admin node to get configuration:
+
+- kubectl exec -it pod/dev-idsvr-runtime-84c859d6df-75wvp -- bash
+- curl -i -k https://dev-idsvr-admin-svc:6749/admin/login/login.html
+
+## Helm Chart Problem
+
+The one issue I found is explained in the [Deploy Idsvr Script](./deploy-idsvr.sh).\
+To fix it I had to reverse engineer the Helm chart and edit the [Cluster Conf Job](./idsvr/yaml/cluster-conf-job.yaml).
+The result is to override the default and avoid adding a sidecar to the job component:
+
+- spec:
+    template:
+      metadata:
+        annotations:
+          sidecar.istio.io/inject: "false"

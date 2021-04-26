@@ -24,9 +24,6 @@ curl -L https://istio.io/downloadIstio | sh -
 
 #
 # Install Istio to the cluster, referencing the file at ~/istio-1.9.3/manifests/profiles/demo.yaml
-# This sets up ingress and egress gateways which can be viewed as follows
-# kubectl get all -n istio-system
-# kubectl -n istio-system describe service istio-ingressgateway
 #
 ~/istio-1.9.3/bin/istioctl install --set profile=demo -y
 
