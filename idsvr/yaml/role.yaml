@@ -1,0 +1,16 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: dev-idsvr-create-secret
+  labels:
+    app.kubernetes.io/name: idsvr
+    helm.sh/chart: idsvr-0.9.19
+    app.kubernetes.io/instance: dev
+    app.kubernetes.io/managed-by: Helm
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - patch

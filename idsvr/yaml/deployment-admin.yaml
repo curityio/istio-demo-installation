@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-idsvr-admin
+  labels:
+    app.kubernetes.io/name: idsvr
+    helm.sh/chart: idsvr-0.9.19
+    app.kubernetes.io/instance: dev
+    app.kubernetes.io/managed-by: Helm
+    role: dev-idsvr-admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: idsvr
+      app.kubernetes.io/instance: dev
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: idsvr
+        helm.sh/chart: idsvr-0.9.19
+        app.kubernetes.io/instance: dev
+        app.kubernetes.io/managed-by: Helm
+        role: dev-idsvr-admin
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "4466"
+    spec:
+      containers:
+        - name: idsvr-admin
+          image: "custom_idsvr:6.1.0"
+          imagePullPolicy: Never
+          command: ["/opt/idsvr/bin/idsvr"]
+          args: ["-s", "admin",
+                 "-N", "idsvr-admin","--admin"]
+          env:
+            - name: STATUS_CMD_PORT
+              value: "4465"
+            - name: LOGGING_LEVEL
+              value: INFO
+            - name: ADMIN_UI_HTTP_MODE
+              value: "false"
+            - name: PASSWORD
+              value: "Password1"
+          ports:
+            - name: config-port
+              containerPort: 6789
+              protocol: TCP
+            - name: health-check
+              containerPort: 4465
+              protocol: TCP
+            - name: metrics
+              containerPort: 4466
+              protocol: TCP
+            - name: admin-ui
+              containerPort: 6749
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: health-check
+            timeoutSeconds:  1
+            failureThreshold: 3
+            periodSeconds: 10
+            initialDelaySeconds: 180
+          readinessProbe:
+            httpGet:
+              path: /
+              port: health-check
+            timeoutSeconds:  1
+            failureThreshold: 3
+            successThreshold: 3
+            periodSeconds: 10
+            initialDelaySeconds: 180
+          volumeMounts:
+            - mountPath: /opt/idsvr/etc/init/cluster.xml
+              subPath: cluster.xml
+              name: cluster-xml
+              readOnly: true
+            - mountPath: /opt/idsvr/etc/init/configmap-config.xml
+              subPath: idsvr-config-backup.xml
+              name: configmap-config
+              readOnly: true
+          resources:
+            {}
+      volumes:
+        - name: cluster-xml
+          secret:
+            secretName: dev-idsvr-cluster-config-xml
+            items:
+              - key: cluster-1.xml
+                path: cluster.xml
+        - name: configmap-config
+          configMap:
+            name: idsvr-configmap

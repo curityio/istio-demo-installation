@@ -1,0 +1,47 @@
+#
+# Expose the identity server's runtime endpoints at a base URL of https://admin.example.com
+#
+
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: idsvr-admin-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 443
+      name: https-idsvr-admin
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: example-com-tls
+    hosts:
+    - admin.example.com
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: idsvr-admin-destinationrule
+spec:
+  host: curity-idsvr-admin-svc
+  trafficPolicy:
+    tls:
+      mode: SIMPLE
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: idsvr-admin-virtualservice
+spec:
+  hosts:
+  - admin.example.com
+  gateways:
+  - idsvr-admin-gateway
+  http:
+  - route:
+    - destination:
+        host: curity-idsvr-admin-svc.default.svc.cluster.local
+        port:
+          number: 6749

@@ -1,0 +1,580 @@
+NAME: dev
+LAST DEPLOYED: Mon Apr 26 11:50:19 2021
+NAMESPACE: default
+STATUS: pending-install
+REVISION: 1
+TEST SUITE: None
+USER-SUPPLIED VALUES:
+affinity: {}
+curity:
+  admin:
+    livenessProbe:
+      failureThreshold: 3
+      initialDelaySeconds: 180
+      periodSeconds: 10
+      timeoutSeconds: 1
+    logging:
+      image: busybox:latest
+      level: INFO
+      logs: []
+      stdout: false
+    readinessProbe:
+      failureThreshold: 3
+      initialDelaySeconds: 180
+      periodSeconds: 10
+      successThreshold: 3
+      timeoutSeconds: 1
+    role: admin
+    service:
+      port: 6789
+      type: ClusterIP
+  adminUiHttp: false
+  adminUiPort: 6749
+  config:
+    backup: false
+    configurationConfigMap: idsvr-configmap
+    configurationConfigMapItemName: idsvr-config-backup.xml
+    configurationSecret: null
+    configurationSecretItemName: null
+    encryptionKey: null
+    environmentVariableSecret: null
+    password: Password1
+    uiEnabled: true
+  healthCheckPort: 4465
+  runtime:
+    livenessProbe:
+      failureThreshold: 3
+      initialDelaySeconds: 180
+      periodSeconds: 10
+      timeoutSeconds: 1
+    logging:
+      image: busybox:latest
+      level: INFO
+      logs: []
+      stdout: false
+    readinessProbe:
+      failureThreshold: 3
+      initialDelaySeconds: 180
+      periodSeconds: 10
+      successThreshold: 3
+      timeoutSeconds: 1
+    role: default
+    service:
+      port: 8443
+      type: ClusterIP
+fullnameOverride: ""
+image:
+  pullPolicy: Never
+  pullSecret: null
+  repository: custom_idsvr
+  tag: 6.1.0
+ingress:
+  admin:
+    host: curity-admin.local
+    secretName: null
+  annotations: {}
+  enabled: false
+  runtime:
+    host: curity.local
+    paths:
+    - /
+    secretName: null
+nameOverride: ""
+networkpolicy:
+  enabled: true
+nodeSelector: {}
+replicaCount: 1
+resources: {}
+tolerations: []
+
+COMPUTED VALUES:
+affinity: {}
+curity:
+  admin:
+    livenessProbe:
+      failureThreshold: 3
+      initialDelaySeconds: 180
+      periodSeconds: 10
+      timeoutSeconds: 1
+    logging:
+      image: busybox:latest
+      level: INFO
+      logs: []
+      stdout: false
+    readinessProbe:
+      failureThreshold: 3
+      initialDelaySeconds: 180
+      periodSeconds: 10
+      successThreshold: 3
+      timeoutSeconds: 1
+    role: admin
+    service:
+      port: 6789
+      type: ClusterIP
+  adminUiHttp: false
+  adminUiPort: 6749
+  config:
+    backup: false
+    configurationConfigMap: idsvr-configmap
+    configurationConfigMapItemName: idsvr-config-backup.xml
+    password: Password1
+    uiEnabled: true
+  healthCheckPort: 4465
+  runtime:
+    deployment:
+      port: 8443
+    livenessProbe:
+      failureThreshold: 3
+      initialDelaySeconds: 180
+      periodSeconds: 10
+      timeoutSeconds: 1
+    logging:
+      image: busybox:latest
+      level: INFO
+      logs: []
+      stdout: false
+    readinessProbe:
+      failureThreshold: 3
+      initialDelaySeconds: 180
+      periodSeconds: 10
+      successThreshold: 3
+      timeoutSeconds: 1
+    role: default
+    service:
+      port: 8443
+      type: ClusterIP
+fullnameOverride: ""
+image:
+  pullPolicy: Never
+  repository: custom_idsvr
+  tag: 6.1.0
+ingress:
+  admin:
+    host: curity-admin.local
+  annotations: {}
+  enabled: false
+  runtime:
+    host: curity.local
+    paths:
+    - /
+nameOverride: ""
+networkpolicy:
+  enabled: true
+nodeSelector: {}
+replicaCount: 1
+resources: {}
+tolerations: []
+
+HOOKS:
+MANIFEST:
+---
+# Source: idsvr/templates/network.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dev-idsvr-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      role: dev-idsvr-admin
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              role: dev-idsvr-runtime
+      ports:
+        - protocol: TCP
+          port: 6789
+---
+# Source: idsvr/templates/rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dev-idsvr-service-account
+  labels:
+    app.kubernetes.io/name: idsvr
+    helm.sh/chart: idsvr-0.9.19
+    app.kubernetes.io/instance: dev
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: idsvr/templates/cluster-conf.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dev-idsvr-cluster-config-xml
+type: Opaque
+data:
+  placeholder: Y3VyaXR5
+---
+# Source: idsvr/templates/cluster-conf.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dev-idsvr-cluster-conf-map
+  labels:
+    app.kubernetes.io/name: idsvr
+    helm.sh/chart: idsvr-0.9.19
+    app.kubernetes.io/instance: dev
+    app.kubernetes.io/managed-by: Helm
+data:
+  createConfigSecret.sh: |
+    #!/bin/bash
+
+    CA_CERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+    NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+
+    CLUSTER_XML=$(/opt/idsvr/bin/genclust -c ${CONFIG_SERVICE_HOST} -p ${CONFIG_SERVICE_PORT} | base64 -w 0)
+
+    REQUEST_CONTENT="[{\"op\": \"add\", \"path\": \"/data/cluster-$REVISION.xml\", \"value\": \"$CLUSTER_XML\"}]"
+    openssl 2>&1 s_client -CAfile $CA_CERT -quiet -connect kubernetes.default:443 <<EOF
+    PATCH /api/v1/namespaces/$NAMESPACE/secrets/$SECRET_NAME HTTP/1.1
+    Host: kubernetes.default
+    Authorization: Bearer $TOKEN
+    Connection: close
+    Content-Type: application/json-patch+json
+    Content-length: ${#REQUEST_CONTENT}
+    Accept: application/json
+
+    $REQUEST_CONTENT
+    EOF
+---
+# Source: idsvr/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: dev-idsvr-create-secret
+  labels:
+    app.kubernetes.io/name: idsvr
+    helm.sh/chart: idsvr-0.9.19
+    app.kubernetes.io/instance: dev
+    app.kubernetes.io/managed-by: Helm
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - patch
+---
+# Source: idsvr/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: dev-idsvr-role-binding
+  labels:
+    app.kubernetes.io/name: idsvr
+    helm.sh/chart: idsvr-0.9.19
+    app.kubernetes.io/instance: dev
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: dev-idsvr-create-secret
+subjects:
+  - kind: ServiceAccount
+    name: dev-idsvr-service-account
+---
+# Source: idsvr/templates/service-admin.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-idsvr-admin-svc
+  labels:
+    app.kubernetes.io/name: idsvr
+    helm.sh/chart: idsvr-0.9.19
+    app.kubernetes.io/instance: dev
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6789
+      targetPort: config-port
+      protocol: TCP
+      name: config-port
+    - port: 4465
+      targetPort: health-check
+      protocol: TCP
+      name: health-check
+    - port:  4466
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+    - port: 6749
+      targetPort: admin-ui
+      protocol: TCP
+      name: admin-ui
+  selector:
+    app.kubernetes.io/name: idsvr
+    app.kubernetes.io/instance: dev
+---
+# Source: idsvr/templates/service-runtime.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-idsvr-runtime-svc
+  labels:
+    app.kubernetes.io/name: idsvr
+    helm.sh/chart: idsvr-0.9.19
+    app.kubernetes.io/instance: dev
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8443
+      targetPort: http-port
+      protocol: TCP
+      name: http-port
+    - port: 4465
+      targetPort: health-check
+      protocol: TCP
+      name: health-check
+    - port:  4466
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+  selector:
+    app.kubernetes.io/name: idsvr
+    app.kubernetes.io/instance: dev
+---
+# Source: idsvr/templates/deployment-admin.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-idsvr-admin
+  labels:
+    app.kubernetes.io/name: idsvr
+    helm.sh/chart: idsvr-0.9.19
+    app.kubernetes.io/instance: dev
+    app.kubernetes.io/managed-by: Helm
+    role: dev-idsvr-admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: idsvr
+      app.kubernetes.io/instance: dev
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: idsvr
+        helm.sh/chart: idsvr-0.9.19
+        app.kubernetes.io/instance: dev
+        app.kubernetes.io/managed-by: Helm
+        role: dev-idsvr-admin
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "4466"
+    spec:
+      containers:
+        - name: idsvr-admin
+          image: "custom_idsvr:6.1.0"
+          imagePullPolicy: Never
+          command: ["/opt/idsvr/bin/idsvr"]
+          args: ["-s", "admin",
+                 "-N", "idsvr-admin","--admin"]
+          env:
+            - name: STATUS_CMD_PORT
+              value: "4465"
+            - name: LOGGING_LEVEL
+              value: INFO
+            - name: ADMIN_UI_HTTP_MODE
+              value: "false"
+            - name: PASSWORD
+              value: "Password1"
+          ports:
+            - name: config-port
+              containerPort: 6789
+              protocol: TCP
+            - name: health-check
+              containerPort: 4465
+              protocol: TCP
+            - name: metrics
+              containerPort: 4466
+              protocol: TCP
+            - name: admin-ui
+              containerPort: 6749
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: health-check
+            timeoutSeconds:  1
+            failureThreshold: 3
+            periodSeconds: 10
+            initialDelaySeconds: 180
+          readinessProbe:
+            httpGet:
+              path: /
+              port: health-check
+            timeoutSeconds:  1
+            failureThreshold: 3
+            successThreshold: 3
+            periodSeconds: 10
+            initialDelaySeconds: 180
+          volumeMounts:
+            - mountPath: /opt/idsvr/etc/init/cluster.xml
+              subPath: cluster.xml
+              name: cluster-xml
+              readOnly: true
+            - mountPath: /opt/idsvr/etc/init/configmap-config.xml
+              subPath: idsvr-config-backup.xml
+              name: configmap-config
+              readOnly: true
+          resources:
+            {}
+      volumes:
+        - name: cluster-xml
+          secret:
+            secretName: dev-idsvr-cluster-config-xml
+            items:
+              - key: cluster-1.xml
+                path: cluster.xml
+        - name: configmap-config
+          configMap:
+            name: idsvr-configmap
+---
+# Source: idsvr/templates/deployment-runtime.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-idsvr-runtime
+  labels:
+    app.kubernetes.io/name: idsvr
+    helm.sh/chart: idsvr-0.9.19
+    app.kubernetes.io/instance: dev
+    app.kubernetes.io/managed-by: Helm
+    role: dev-idsvr-runtime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: idsvr
+      app.kubernetes.io/instance: dev
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: idsvr
+        helm.sh/chart: idsvr-0.9.19
+        app.kubernetes.io/instance: dev
+        app.kubernetes.io/managed-by: Helm
+        role: dev-idsvr-runtime
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "4466"
+    spec:
+      containers:
+        - name: idsvr-runtime
+          image: "custom_idsvr:6.1.0"
+          imagePullPolicy: Never
+          command: ["/opt/idsvr/bin/idsvr"]
+          args: ["-s", "default","--no-admin"]
+          env:
+            - name: STATUS_CMD_PORT
+              value: "4465"
+            - name: LOGGING_LEVEL
+              value: INFO
+          ports:
+            - name: http-port
+              containerPort: 8443
+              protocol: TCP
+            - name: health-check
+              containerPort: 4465
+              protocol: TCP
+            - name: metrics
+              containerPort: 4466
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: health-check
+            timeoutSeconds:  1
+            failureThreshold: 3
+            periodSeconds: 10
+            initialDelaySeconds: 180
+          readinessProbe:
+            httpGet:
+              path: /
+              port: health-check
+            timeoutSeconds:  1
+            failureThreshold: 3
+            successThreshold: 3
+            periodSeconds: 10
+            initialDelaySeconds: 180
+          volumeMounts:
+            - mountPath: /opt/idsvr/etc/init/cluster.xml
+              subPath: cluster.xml
+              name: cluster-xml
+              readOnly: true
+            - mountPath: /opt/idsvr/etc/init/configmap-config.xml
+              subPath: idsvr-config-backup.xml
+              name: configmap-config
+              readOnly: true
+          resources:
+            {}
+      volumes:
+        - name: cluster-xml
+          secret:
+            secretName: dev-idsvr-cluster-config-xml
+            items:
+              - key: cluster-1.xml
+                path: cluster.xml
+        - name: configmap-config
+          configMap:
+            name: idsvr-configmap
+---
+# Source: idsvr/templates/cluster-conf.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dev-idsvr-1-cluster-conf-job
+  labels:
+    app.kubernetes.io/name: idsvr
+    helm.sh/chart: idsvr-0.9.19
+    app.kubernetes.io/instance: dev
+    app.kubernetes.io/managed-by: Helm
+spec:
+  ttlSecondsAfterFinished: 60
+  template:
+    spec:
+      containers:
+        - name: dev-idsvr-cluster-conf-job
+          image: "custom_idsvr:6.1.0"
+          command: ["sh",  "/opt/idsvr/bin/createConfigSecret.sh"]
+          env:
+            - name: CONFIG_SERVICE_HOST
+              value: dev-idsvr-admin-svc
+            - name: CONFIG_SERVICE_PORT
+              value: "6789"
+            - name: SECRET_NAME
+              value: dev-idsvr-cluster-config-xml
+            - name: REVISION
+              value: "1"
+            
+          volumeMounts:
+            - name: entrypoint-volume
+              mountPath: /opt/idsvr/bin/createConfigSecret.sh
+              subPath: createConfigSecret.sh
+      volumes:
+        - name: entrypoint-volume
+          configMap:
+            name: dev-idsvr-cluster-conf-map
+      serviceAccountName: dev-idsvr-service-account
+      restartPolicy: Never
+
+NOTES:
+Get the application URL by running these commands:
+  Curity:
+  export POD_NAME=$(kubectl get pods --namespace default -l "role=dev-idsvr-runtime,app.kubernetes.io/instance=dev" -o jsonpath="{.items[0].metadata.name}")
+  echo "Visit http://127.0.0.1:8443 to use your application"
+  kubectl port-forward $POD_NAME 8443:8443
+  Admin UI:
+  export POD_NAME=$(kubectl get pods --namespace default -l "role=dev-idsvr-admin,app.kubernetes.io/instance=dev" -o jsonpath="{.items[0].metadata.name}")
+  echo "Visit http://127.0.0.1:6749 to use your application"
+  kubectl port-forward $POD_NAME 6749:6749
+
+** Please wait for a few minutes until the deployment is complete. The admin and runtime node(s) will wait for the cluster key to be created by the Job **

@@ -1,0 +1,121 @@
+#
+# A customised values file for the Curity Identity Server
+#
+
+replicaCount: 2
+
+# Point to the custom image produced by our docker file
+image:
+  repository: custom_idsvr
+  tag: 6.1.0
+  pullPolicy: Never
+  pullSecret:
+
+nameOverride: ""
+fullnameOverride: ""
+networkpolicy:
+  enabled: true
+
+curity:
+  healthCheckPort: 4465
+  adminUiPort: 6749
+  adminUiHttp: false
+
+  admin:
+    role: admin
+    service:
+      type: ClusterIP
+      port: 6789
+    livenessProbe:
+      timeoutSeconds: 1
+      failureThreshold: 3
+      periodSeconds: 10
+      initialDelaySeconds: 180
+    readinessProbe:
+      timeoutSeconds: 1
+      failureThreshold: 3
+      successThreshold: 3
+      periodSeconds: 10
+      initialDelaySeconds: 180
+    logging:
+      image: "busybox:latest"
+      level: INFO
+      stdout: false
+      logs: []
+#        - audit
+#        - request
+#        - cluster
+#        - confsvc
+#        - confsvc-internal
+#        - post-commit-scripts
+
+  runtime:
+    role: default
+    service:
+      type: ClusterIP
+      port: 8443
+    livenessProbe:
+      timeoutSeconds: 1
+      failureThreshold: 3
+      periodSeconds: 10
+      initialDelaySeconds: 180
+    readinessProbe:
+      timeoutSeconds: 1
+      failureThreshold: 3
+      successThreshold: 3
+      periodSeconds: 10
+      initialDelaySeconds: 180
+    logging:
+      image: "busybox:latest"
+      level: INFO
+      stdout: false
+      logs: []
+#        - audit
+#        - request
+#        - cluster
+#        - confsvc
+#        - confsvc-internal
+#        - post-commit-scripts
+
+  # We deploy with the default configuration, then restore configuration via the restore-data script
+  config:
+    uiEnabled: true
+    backup: false
+    password: Password1
+    encryptionKey:
+    environmentVariableSecret:
+    configurationConfigMap: idsvr-configmap
+    configurationConfigMapItemName: idsvr-config-backup.xml
+    configurationSecret:
+    configurationSecretItemName:
+
+# This demo uses Istio for Ingress rather than the Kubernetes default
+ingress:
+  enabled: false
+  annotations: {}
+  runtime:
+    host: curity.local
+    secretName:
+    paths:
+      - /
+  admin:
+    host: curity-admin.local
+    secretName:
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

@@ -1,0 +1,46 @@
+#
+# A basic Kubernetes deployment file for MySql
+# This intentionally avoids persistent storage and data is instead persisted to the data folder
+#
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: mysql-svc
+spec:
+  type: NodePort
+  selector:
+    app: mysql
+  ports:
+  - protocol: "TCP"
+    port: 3306
+    nodePort: 30306
+    targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: custom_mysql:8.0.22
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: Password1
+        - name: MYSQL_DATABASE
+          value: idsvr
+        ports:
+        - containerPort: 3306
+          name: mysql

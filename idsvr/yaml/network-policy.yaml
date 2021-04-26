@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dev-idsvr-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      role: dev-idsvr-admin
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              role: dev-idsvr-runtime
+      ports:
+        - protocol: TCP
+          port: 6789
