@@ -25,7 +25,7 @@ kind: DestinationRule
 metadata:
   name: idsvr-admin-destinationrule
 spec:
-  host: dev-idsvr-admin-svc
+  host: curity-idsvr-admin-svc
   trafficPolicy:
     tls:
       mode: SIMPLE
@@ -42,6 +42,6 @@ spec:
   http:
   - route:
     - destination:
-        host: dev-idsvr-admin-svc
+        host: curity-idsvr-admin-svc
         port:
           number: 6749

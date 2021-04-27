@@ -19,6 +19,8 @@ curl -L https://istio.io/downloadIstio | sh -
 
 #
 # Install Istio to the cluster, referencing the file at ~/istio-1.9.3/manifests/profiles/demo.yaml
+# The demo profile has good defaults when getting started, though other options are also available:
+# - https://istio.io/latest/docs/setup/additional-setup/config-profiles
 #
 ~/istio-1.9.3/bin/istioctl install --set profile=demo -y
 

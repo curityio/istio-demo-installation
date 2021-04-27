@@ -26,25 +26,9 @@ then
 fi
 
 #
-# Get the latest helm chart
-#
-helm repo add curity https://curityio.github.io/idsvr-helm 2>/dev/null
-helm repo update
-
-#
 # Uninstall the existing version if applicable
-# - helm uninstall dev 2>/dev/null
-kubectl delete -f idsvr/yaml/network-policy.yaml         2>/dev/null
-kubectl delete -f idsvr/yaml/service-account.yaml        2>/dev/null
-kubectl delete -f idsvr/yaml/cluster-conf-secret.yaml    2>/dev/null
-kubectl delete -f idsvr/yaml/cluster-conf-configmap.yaml 2>/dev/null
-kubectl delete -f idsvr/yaml/role.yaml                   2>/dev/null
-kubectl delete -f idsvr/yaml/role-binding.yaml           2>/dev/null
-kubectl delete -f idsvr/yaml/service-admin.yaml          2>/dev/null
-kubectl delete -f idsvr/yaml/service-runtime.yaml        2>/dev/null
-kubectl delete -f idsvr/yaml/deployment-admin.yaml       2>/dev/null
-kubectl delete -f idsvr/yaml/deployment-runtime.yaml     2>/dev/null
-kubectl delete -f idsvr/yaml/cluster-conf-job.yaml       2>/dev/null
+#
+kubectl delete -f idsvr/yaml 2>/dev/null
 
 #
 # Create the config map referenced in the idsvr-values file, whose data can then be viewed with the below command:
@@ -69,26 +53,41 @@ fi
 #
 # I then extracted individual YAML files from the below command
 # The below YAML files are a combination of the Helm chart templates and my values file 
-# - helm install dev curity/idsvr --values=idsvr/idsvr-values.yaml --dry-run --debug
+# - helm install curity-dev curity/idsvr --values=idsvr/idsvr-values.yaml --dry-run --debug
 #
 # I looked at a couple of solutions but the one that worked was disabling the Istio sidecar for the configuration job's pod:
 # https://github.com/istio/istio/issues/11130
 # https://stackoverflow.com/questions/59235887/how-to-disable-istio-on-k8s-job
 #
-kubectl apply -f idsvr/yaml/network-policy.yaml
-kubectl apply -f idsvr/yaml/service-account.yaml
-kubectl apply -f idsvr/yaml/cluster-conf-secret.yaml
-kubectl apply -f idsvr/yaml/cluster-conf-configmap.yaml
-kubectl apply -f idsvr/yaml/role.yaml
-kubectl apply -f idsvr/yaml/role-binding.yaml
-kubectl apply -f idsvr/yaml/service-admin.yaml
-kubectl apply -f idsvr/yaml/service-runtime.yaml
-kubectl apply -f idsvr/yaml/deployment-admin.yaml
-kubectl apply -f idsvr/yaml/deployment-runtime.yaml
-kubectl apply -f idsvr/yaml/cluster-conf-job.yaml
+
+#
+# Get Kubernetes yaml from the Helm chart when required
+#
+HELM_FOLDER=~/tmp/idsvr-helm
+rm -rf $HELM_FOLDER
+git clone https://github.com/curityio/idsvr-helm $HELM_FOLDER
+cp idsvr/idsvr-values.yaml $HELM_FOLDER/idsvr
+#helm template curity $HELM_FOLDER/idsvr --values $HELM_FOLDER/idsvr/idsvr-values.yaml > idsvr/idsvr.yaml
 if [ $? -ne 0 ];
 then
-  echo "Problem encountered starting the Helm Chart installation for the Identity Server"
+  echo "Problem encountered creating Kubernetes YAML from the Identity Server Helm Chart"
+  exit 1
+fi
+
+#
+# I then manually set this annotation in the cluster-conf-job and would like to automate this
+# This might be done using the yq tool or perhaps there is a better option
+# - sidecar.istio.io/inject="false"
+# 
+
+#
+# Force a redeploy of the system
+#
+kubectl delete -f idsvr/idsvr.yaml 2>/dev/null
+kubectl apply -f idsvr/idsvr.yaml
+if [ $? -ne 0 ];
+then
+  echo "Problem encountered applying Kubernetes YAML"
   exit 1
 fi
 
