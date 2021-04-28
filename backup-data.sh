@@ -31,7 +31,7 @@ fi
 #
 # Back up Curity configuration via the REST API
 #
-CONFIG_FILE_NAME=idsvr-config-backup.sql
+CONFIG_FILE_NAME=idsvr-config-backup.xml
 curl -u 'admin:Password1' 'https://admin.example.com/admin/api/restconf/data?depth=unbounded&content=config' > ~/tmp/$CONFIG_FILE_NAME
 if [ $? -ne 0 ]
 then
