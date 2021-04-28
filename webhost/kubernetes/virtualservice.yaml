@@ -1,0 +1,18 @@
+#
+# Expose the web host at a URL such as https://web.example.com
+# https://www.digitalocean.com/community/tutorials/how-to-install-and-use-istio-with-kubernetes
+#
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: webhost-virtualservice
+spec:
+  hosts:
+  - web.example.com
+  gateways:
+  - https-gateway
+  http:
+  - route:
+    - destination:
+        host: webhost-svc

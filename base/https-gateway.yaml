@@ -1,0 +1,22 @@
+#
+# An Istio destination rule to enable services to be exposed over port 443
+# Each individual service then needs to add a virtual service with its own routing
+#
+
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: https-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: example-com-tls
+    hosts:
+    - "*"

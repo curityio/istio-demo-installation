@@ -1,0 +1,23 @@
+#
+# This is needed in order for both internal and external calls to Curity endpoints to work
+#
+
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: idsvr-admin-destinationrule
+spec:
+  host: curity-idsvr-admin-svc.default.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: SIMPLE
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: idsvr-runtime-destinationrule
+spec:
+  host: curity-idsvr-runtime-svc.default.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: SIMPLE

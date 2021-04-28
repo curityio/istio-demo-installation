@@ -236,7 +236,7 @@ spec:
             timeoutSeconds:  1
             failureThreshold: 3
             periodSeconds: 10
-            initialDelaySeconds: 300
+            initialDelaySeconds: 600
           readinessProbe:
             httpGet:
               path: /
@@ -245,7 +245,7 @@ spec:
             failureThreshold: 3
             successThreshold: 3
             periodSeconds: 10
-            initialDelaySeconds: 300
+            initialDelaySeconds: 600
           volumeMounts:
             - mountPath: /opt/idsvr/etc/init/cluster.xml
               subPath: cluster.xml
@@ -280,7 +280,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     role: curity-idsvr-runtime
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app.kubernetes.io/name: idsvr

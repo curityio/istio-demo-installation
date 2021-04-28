@@ -16,7 +16,7 @@ Run this script, and also read it to understand the setup:
 
 - ./create-cluster.sh
 
-Then view ingress and egress gateways which are used instead of the default Kubernetes ingress:
+Then view some overview details of the Istio system:
 
 - kubectl get all -n istio-system
 - kubectl -n istio-system describe service istio-ingressgateway
@@ -36,10 +36,12 @@ Then run this command and get the value of the EXTERNAL-IP field:
 Then edit the `/etc/hosts` file and add entries like this, using the external IP address:
 
 - 10.108.72.131 web.example.com
+- 10.108.72.131 api.example.com
 - 10.108.72.131 login.example.com 
 - 10.108.72.131 admin.example.com 
 
-Also add the root certificate at `certs/example.com.ca.pem` to Keychain Access under System/Certificates.
+Also add the root certificate at `certs/example.com.ca.pem` to Keychain Access under System/Certificates.\
+This ensures that the wildcard certificate for the above domain names is trusted on your MacBook.
 
 ## Deploy a Minimal Web Component
 
@@ -62,19 +64,27 @@ Execute these commands to deploy a SQL database and the Identity Server to the c
 
 Note how all pods, including those for the Curity Identity Server, now include a sidecar component called 'istio-proxy':
 
-- kubectl get pods
-- kubectl describe pod/curity-idsvr-runtime-84c859d6df-75wvp
+- POD=$(kubectl get pods -o name | grep webhost)
+- kubectl describe $POD
 
-This is because we made Istio injection the default behavior:
+This is because the Create Cluster script made Istio injection the default behavior:
 
 - kubectl label namespace default istio-injection=enabled
 
 ## View Ingress Details
 
-The main thing that works differently is the ingress which now uses Istio specific components:
+Istio requires different ingress components to a base Kubernetes install.\
+This includes use of Gateway / Virtual Service / Destination Rule components:
 
-- [Admin Ingress](./idsvr/ingress-admin.yaml)
-- [Runtime Ingress](./idsvr/ingress-runtime.yaml)
+- [Gateway](./base/https-gateway.yaml)
+- [Virtual Services](./idsvr/virtualservices.yaml)
+- [Destination Rules](./idsvr/destinationrules.yaml))
+
+Extra networking objects then become available for managing the cluster:
+
+- kubectl get gateway
+- kubectl get virtualservice
+- kubectl get destinationrule
 
 ## Use the System
 
@@ -89,16 +99,19 @@ Log in to the HAAPI Web Sample with these details:
 - john.doe
 - Password1
 
-## Make Calls between PODs
+## Make Calls between Internal Services
 
-Start a shell in a runtime node and call the admin node to get configuration:
+Start a shell and test connectivity to the Curity Identity Server.\
+Connectivity works though I should be able to avoid the -k parameter:
 
-- kubectl exec -it pod/curity-idsvr-runtime-84c859d6df-75wvp -- bash
+- POD=$(kubectl get pods -o name | grep webhost)
+- kubectl exec -it $POD -- sh
 - curl -k -u 'admin:Password1' 'https://curity-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
+- curl -k 'https://curity-idsvr-runtime-svc:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
 
-## Issue 1 - Cluster Configuration
+## Issue 1: Cluster Configuration
 
-I experienced an error in the Cluser Conf Job due to the SSL call failing.\
+I experienced an error in the Cluster Conf Job due to the createConfigSecret openssl call failing.\
 I think the cause was that the openssl call was made too early, before the sidecar was ready.\
 It is resolved by overriding the default to avoid adding a sidecar to the job component:
 
@@ -108,42 +121,21 @@ It is resolved by overriding the default to avoid adding a sidecar to the job co
         annotations:
           sidecar.istio.io/inject: "false"
 
-## Issue 2 - Slow Sidecar Startup
+## Issue 2: Slow Startup
 
-Startup times can be very slow in Curity pods with the Istio sidecar taking 5 minutes to reach a ready state.\
-However, there is no slowness for my minimal web component, which quickly reaches Ready (2/2).\
-I need to better understand this and google some more:
-
-- https://github.com/istio/istio/issues/7817
-
-Currently I am setting initialDelaySeconds=300 for the admin node and 600 for runtime nodes.\
-Workaround is to use the inject=false annotation but this is not satisfactory.
-
-## Issue 3 - SSL Trust Connecting to the Admin Node
-
-Runtime node cannot connect to the admin node, with the following logs:
-
--  Setting cluster mode to Runtime, attempting to connect to master: curity-idsvr-admin-svc port 6789
-- Runtime not connected to admin. Connection to admin closed
-
-Eventually, after 5 minutes, both admin and runtime nodes go to Ready (2/2) state.\
-When I run a curl command manually from the minimal web container I get this issue:
-
-- curl: (35) error:1408F10B:SSL routines:ssl3_get_record:wrong version number
-
-Workaround is to use the inject=false annotation on the admin node but this is not satisfactory.
-
-One option might be to use cert-manager issued certificates inside the cluster.\
-I need to google and perhaps troubleshoot this further with the openssl tool:
-
-- https://github.com/istio/istio/issues/16531
+- PODS take 5 to 10 minutes to reach a ready state
 
 ## Current State
 
 - Deployment produces a working Admin UI
-- Runtime Node cannot connect to the Admin Node, which may require a TLS policy to resolve
-- Metadata endpoint therefore does not work
-- Complete the architecture document to cover main concepts, including ingress / egress behavior
-- Get a MySql connection and 2 runtime nodes working
+- Runtime Node connects to Admin Node after a while
+- Runtime Node connection works externally but no metadata is returned
+- Cannot call admin node inside the cluster though it has worked before
+- Cannot call runtime node inside the cluster
+
+## Tasks
+
+- Upgrade to a MySql connection and 2 runtime nodes
+- Get the backup script working with data for john.doe test user
 - Get HAAPI web sample working
-- Understand slowness causes and update the deployment
+- Automate the update to the cluster job

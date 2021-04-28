@@ -12,11 +12,14 @@ FROM curity.azurecr.io/curity/idsvr:6.1.0
 # Switch to a user with install privileges
 USER root
 
-# Copy in the MYSQL driver, extracted from the platform independent tar file: https://dev.mysql.com/downloads/connector/j
-COPY resources/mysql-connector-java-8.0.22.jar /opt/idsvr/lib/plugins/data.access.jdbc
+# The MYSQL driver, extracted from the platform independent tar file: https://dev.mysql.com/downloads/connector/j
+COPY idsvr/mysql-connector-java-8.0.22.jar /opt/idsvr/lib/plugins/data.access.jdbc
 
-# Copy in the HAAPI web sample
-COPY resources/haapi-web/* /opt/idsvr/usr/share/webroot/
+# INFO level logs
+COPY idsvr/log4j2.xml  /opt/idsvr/etc/
+
+# The HAAPI web sample
+COPY haapi-web/* /opt/idsvr/usr/share/webroot/
 
 # Install developer tools in order to troubleshoot connections and SSL trust issues
 RUN apt-get update

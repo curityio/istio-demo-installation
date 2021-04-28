@@ -26,12 +26,13 @@ then
 fi
 
 #
-# Uninstall the existing version if applicable
+# Uninstall the existing system if applicable
 #
-kubectl delete -f idsvr/yaml 2>/dev/null
+kubectl delete -f idsvr/idsvr.yaml 2>/dev/null
 
 #
-# Create the config map referenced in the idsvr-values file, whose data can then be viewed with the below command:
+# Create the config map referenced in the helm-values.yaml file
+# This deploys XML configuration to containers at /opt/idsvr/etc/init/configmap-config.xml
 # - kubectl get configmap idsvr-configmap -o yaml
 #
 kubectl delete configmap idsvr-configmap 2>/dev/null
@@ -43,31 +44,17 @@ then
 fi
 
 #
-# The simple option is to use Helm directly like this:
-# - helm install dev curity/idsvr --values=idsvr/idsvr-values.yaml
-#
-# However, this leads to the following openssl connection error in cluster-conf-job.yaml
+# Get the raw Kubernetes yaml from the Helm chart for finer control over behavior
+# Running the Helm chart directly leads to the following openssl connection error in cluster-conf-job.yaml
 # - 139906036158912:error:0200206F:system library:connect:Connection refused:../crypto/bio/b_sock2.c:110:
 # - 139906036158912:error:2008A067:BIO routines:BIO_connect:connect error:../crypto/bio/b_sock2.c:111:
 # - connect:errno=111
 #
-# I then extracted individual YAML files from the below command
-# The below YAML files are a combination of the Helm chart templates and my values file 
-# - helm install curity-dev curity/idsvr --values=idsvr/idsvr-values.yaml --dry-run --debug
-#
-# I looked at a couple of solutions but the one that worked was disabling the Istio sidecar for the configuration job's pod:
-# https://github.com/istio/istio/issues/11130
-# https://stackoverflow.com/questions/59235887/how-to-disable-istio-on-k8s-job
-#
-
-#
-# Get Kubernetes yaml from the Helm chart when required
-#
 HELM_FOLDER=~/tmp/idsvr-helm
 rm -rf $HELM_FOLDER
 git clone https://github.com/curityio/idsvr-helm $HELM_FOLDER
-cp idsvr/idsvr-values.yaml $HELM_FOLDER/idsvr
-#helm template curity $HELM_FOLDER/idsvr --values $HELM_FOLDER/idsvr/idsvr-values.yaml > idsvr/idsvr.yaml
+cp idsvr/helm-values.yaml $HELM_FOLDER/idsvr
+#helm template curity $HELM_FOLDER/idsvr --values $HELM_FOLDER/idsvr/helm-values.yaml > idsvr/idsvr.yaml
 if [ $? -ne 0 ];
 then
   echo "Problem encountered creating Kubernetes YAML from the Identity Server Helm Chart"
@@ -75,10 +62,19 @@ then
 fi
 
 #
-# I then manually set this annotation in the cluster-conf-job and would like to automate this
-# This might be done using the yq tool or perhaps there is a better option
-# - sidecar.istio.io/inject="false"
-# 
+# I looked at a couple of solutions:
+# https://github.com/istio/istio/issues/11130
+# https://stackoverflow.com/questions/59235887/how-to-disable-istio-on-k8s-job
+#
+# The one I chose was to set this annotation for the cluster-conf-job to avoid use of a sidecar:
+# I would like to automate this, perhaps using the yq tool
+#
+# spec:
+#   template:
+#      metadata:
+#        annotations:
+#          sidecar.istio.io/inject: "false"
+#
 
 #
 # Force a redeploy of the system
@@ -92,33 +88,35 @@ then
 fi
 
 #
-# Expose the admin UI via an Istio ingress
+# Expose HTTPS endpoints via an Istio gateway and virtual service
 #
-kubectl delete gateway/idsvr-admin-gateway                 2>/dev/null
-kubectl delete destinationrule/idsvr-admin-destinationrule 2>/dev/null   
-kubectl delete virtualservice/idsvr-admin-virtualservice   2>/dev/null
-kubectl apply -f idsvr/ingress-admin.yaml
+kubectl delete -f idsvr/virtualservices.yaml 2>/dev/null
+kubectl apply -f  idsvr/virtualservices.yaml
 if [ $? -ne 0 ];
 then
-  echo "Problem encountered creating the ingress for the identity server admin node"
+  echo "Problem encountered creating Istio virtual services to expose HTTP endpoints"
   exit 1
 fi
 
 #
-# Expose the runtime via an Istio ingress
+# Add destination rules so that Identity Server nodes can be reached via TLS inside the cluster
 #
-kubectl delete gateway/idsvr-runtime-gateway                 2>/dev/null
-kubectl delete destinationrule/idsvr-runtime-destinationrule 2>/dev/null   
-kubectl delete virtualservice/idsvr-runtime-virtualservice   2>/dev/null
-kubectl apply -f idsvr/ingress-runtime.yaml
+kubectl delete -f idsvr/destinationrules.yaml 2>/dev/null
+kubectl apply  -f idsvr/destinationrules.yaml
 if [ $? -ne 0 ];
 then
-  echo "Problem encountered creating the ingress for the identity server runtime nodes"
+  echo "Problem encountered creating Istio destination rules to allow TLS inside the cluster"
   exit 1
 fi
 
 #
-# Once the pods come up we can call them over these URLs:
-# - curl https://admin.example.com/admin/login/login.html
-# - curl https://login.example.com/oauth/v2/oauth-anonymous/.well-known/openid-configuration
+# Once the pods come up we can call them over these URLs externally:
+#
+# - curl 'https://admin.example.com/admin/api/restconf/data?depth=unbounded&content=config'
+# - curl 'https://login.example.com/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
+#
+# Inside the cluster we can use these URLs: 
+#
+# curl -k -u 'admin:Password1' 'https://curity-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
+# curl -k 'https://curity-idsvr-runtime-svc:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
 #

@@ -2,7 +2,7 @@
 # A customised values file for the Curity Identity Server
 #
 
-replicaCount: 1
+replicaCount: 2
 
 # Point to the custom image produced by our docker file
 image:
@@ -30,13 +30,13 @@ curity:
       timeoutSeconds: 1
       failureThreshold: 3
       periodSeconds: 10
-      initialDelaySeconds: 300
+      initialDelaySeconds: 600
     readinessProbe:
       timeoutSeconds: 1
       failureThreshold: 3
       successThreshold: 3
       periodSeconds: 10
-      initialDelaySeconds: 300
+      initialDelaySeconds: 600
     logging:
       image: "busybox:latest"
       level: INFO

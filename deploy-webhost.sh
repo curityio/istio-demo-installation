@@ -24,9 +24,8 @@ fi
 #
 # Deploy the docker image
 #
-kubectl delete deploy/webhost       2>/dev/null
-kubectl delete service/webhost-svc  2>/dev/null
-kubectl apply -f webhost/kubernetes/service.yaml
+kubectl delete -f webhost/kubernetes/service.yaml 2>/dev/null
+kubectl apply  -f webhost/kubernetes/service.yaml
 if [ $? -ne 0 ];
 then
   echo "Problem encountered deploying the service for the web host"
@@ -36,9 +35,8 @@ fi
 #
 # Expose via an Istio ingress
 #
-kubectl delete gateway/webhost-gateway      2>/dev/null
-kubectl delete virtualservice/webhost-route 2>/dev/null
-kubectl apply -f webhost/kubernetes/ingress.yaml
+kubectl delete -f webhost/kubernetes/virtualservice.yaml 2>/dev/null
+kubectl apply  -f webhost/kubernetes/virtualservice.yaml
 if [ $? -ne 0 ];
 then
   echo "Problem encountered creating the ingress for the web host"
@@ -46,6 +44,7 @@ then
 fi
 
 #
-# Once the pod comes up we can access it over the following URL:
+# Once the pod comes up we can access it over the following external and internal URLs:
 # - curl https://web.example.com
+# - curl http://webhost-svc:3000
 #

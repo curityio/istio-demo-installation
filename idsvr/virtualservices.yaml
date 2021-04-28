@@ -1,0 +1,40 @@
+#
+# Expose the identity server's HTTP endpoints using the below DNS names
+#
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: idsvr-admin-virtualservice
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - https-gateway
+  http:
+  - route:
+    - destination:
+        host: curity-idsvr-admin-svc
+        port:
+          number: 6749
+  - route:
+    - destination:
+        host: curity-idsvr-admin-svc
+        port:
+          number: 6789          
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: idsvr-runtime-virtualservice
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - https-gateway
+  http:
+  - route:
+    - destination:
+        host: curity-idsvr-runtime-svc
+        port:
+          number: 8443
