@@ -280,7 +280,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     role: curity-idsvr-runtime
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: idsvr

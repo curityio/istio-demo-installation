@@ -78,7 +78,7 @@ This includes use of Gateway / Virtual Service / Destination Rule components:
 
 - [Gateway](./base/https-gateway.yaml)
 - [Virtual Services](./idsvr/virtualservices.yaml)
-- [Destination Rules](./idsvr/destinationrules.yaml))
+- [Destination Rules](./idsvr/destinationrules.yaml)
 
 Extra networking objects then become available for managing the cluster:
 
@@ -88,12 +88,12 @@ Extra networking objects then become available for managing the cluster:
 
 ## Use the System
 
-Browse to these working URLs:
+The goal is to browse to these working URLs, though the second does not work currently:
 
 - https://admin.example.com/admin
 - https://login.example.com/oauth/v2/oauth-anonymous/.well-known/openid-configuration
 
-Log in to the HAAPI Web Sample with these details:
+Once working you will be able to do a login using the HAAPI Web Sample:
 
 - https://login.example.com/demo-client.html
 - john.doe
@@ -101,18 +101,20 @@ Log in to the HAAPI Web Sample with these details:
 
 ## Make Calls between Internal Services
 
-Start a shell and test connectivity to the Curity Identity Server.\
-Connectivity works though I should be able to avoid the -k parameter:
+Start a shell and test connectivity to the Curity Identity Server:
 
 - POD=$(kubectl get pods -o name | grep webhost)
 - kubectl exec -it $POD -- sh
 - curl -k -u 'admin:Password1' 'https://curity-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
 - curl -k 'https://curity-idsvr-runtime-svc:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
 
+Connectivity works though I should be able to avoid the -k parameter to bypass SSL Trust.\
+For normal Kubernetes I have used [cert-manager](https://github.com/jetstack/cert-manager) to issue self signed internal certificates when pods start.
+
 ## Issue 1: Cluster Configuration
 
 I experienced an error in the Cluster Conf Job due to the createConfigSecret openssl call failing.\
-I think the cause was that the openssl call was made too early, before the sidecar was ready.\
+I think the cause was the openssl call being made too early, before the sidecar proxy was ready.\
 It is resolved by overriding the default to avoid adding a sidecar to the job component:
 
 - spec:
@@ -123,19 +125,20 @@ It is resolved by overriding the default to avoid adding a sidecar to the job co
 
 ## Issue 2: Slow Startup
 
-- PODS take 5 to 10 minutes to reach a ready state
+Curity PODS take 5 to 10 minutes to reach a ready state and are quite a bit slower than usual.\
+I need to understand how to troubleshoot this better.
 
 ## Current State
 
 - Deployment produces a working Admin UI
-- Runtime Node connects to Admin Node after a while
-- Runtime Node connection works externally but no metadata is returned
-- Cannot call admin node inside the cluster though it has worked before
-- Cannot call runtime node inside the cluster
+- Runtime Node connects to Admin Node after 5 to 10 minutes - but not always
+- Runtime Node connection works externally but no OIDC metadata is returned
+- Cannot call admin node inside the cluster - though it has worked before
+- Cannot call runtime node inside the cluster - this has never worked
 
 ## Tasks
 
 - Upgrade to a MySql connection and 2 runtime nodes
 - Get the backup script working with data for john.doe test user
 - Get HAAPI web sample working
-- Automate the update to the cluster job
+- Use the [yq tool](https://github.com/mikefarah/yq) to automate the update to apply the annotation to the cluster job

@@ -8,6 +8,7 @@ metadata:
   name: idsvr-admin-virtualservice
 spec:
   hosts:
+  # - admin.example.com  
   - "*"
   gateways:
   - https-gateway
@@ -28,7 +29,9 @@ kind: VirtualService
 metadata:
   name: idsvr-runtime-virtualservice
 spec:
+  # For some reason a value of * enables connections to https://login.example.com to work
   hosts:
+  # - login.example.com
   - "*"
   gateways:
   - https-gateway

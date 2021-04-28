@@ -17,6 +17,8 @@ The following main components are added by Istio:
 | Galley | Manages configuration data from the underlying platform |
 | Citadel | Manages certificates and acts as the Root Authority |
 
+A core pod that runs the Control Plane components is called istiod and often provides useful logs:
+
 ![Istio Architecture](./images/istio-architecture.svg)
 
 ## Concepts
@@ -34,44 +36,46 @@ Exposing HTTP endpoints outside the cluster requires the following Istio objects
 
 | Object | Description |
 | ------ | ----------- |
-| Gateway | Specifies an external host name, port 443 and the SSL certificate to use |
-| Virtual Service | Exposes a service via the gateway, by specifying the internal service name and port number |
+| Gateway | Specifies the external host name(s), port 443 and the SSL certificate to use |
+| Virtual Service | Exposes a service via the gateway, by specifying the internal service name |
 | Destination Rule | Needed to specify that HTTPS is used inside the cluster, as for Identity Server containers |
 
-## Viewing Sidecar Logs
+## Managing Istio Sidecar Component Details
 
 To find issues where the Istio Proxy on the admin node has prevented a connection:
 
 - ADMIN_SIDECAR_POD=$(kubectl get pods -o name | grep curity-idsvr-admin)
 - kubectl logs -f $ADMIN_SIDECAR_POD -c istio-proxy
+- kubectl exec -it $ADMIN_SIDECAR_POD -- bash
 
 To find issues where the Istio Proxy on the runtime node has prevented a connection:
 
 - RUNTIME_SIDECAR_POD=$(kubectl get pods -o name | grep curity-idsvr-runtime)
 - kubectl logs -f $RUNTIME_SIDECAR_POD -c istio-proxy
+- kubectl exec -it $RUNTIME_SIDECAR_POD -- bash
 
-## Viewing Ingress Logs
+## Managing Istiod
+
+To find general issues with tje core istiod pod that runs core components:
+
+- ISTIOD_POD=$(kubectl get pods -n istio-system -o name | grep istiod)
+- kubectl logs -f -n istio-system $ISTIOD_POD
+
+## Managing the Ingress Controller
 
 To find issues where the ingress controller has blocked an incoming connection:
 
 - INGRESS_POD=$(kubectl get pods -n istio-system -o name | grep istio-ingressgateway)
 - kubectl logs -f -n istio-system $INGRESS_POD
 
-## Viewing Egress Logs
+## Managing the Egress Controller
 
 To find issues where the egress controller has blocked an outgoing connection:
 
 - EGRESS_POD=$(kubectl get pods -n istio-system -o name | grep istio-egressgateway)
 - kubectl logs -f -n istio-system $EGRESS_POD
 
-## Viewing Istiod Logs
-
-To find general issues with core Istio components:
-
-- ISTIOD_POD=$(kubectl get pods -n istio-system -o name | grep istiod)
-- kubectl logs -f -n istio-system $ISTIOD_POD
-
-## Troubleshooting
+## Troubleshooting Links
 
 - [Traffic Management](https://istio.io/latest/docs/concepts/traffic-management)
 - [Traffic Management Problems](https://istio.io/latest/docs/ops/common-problems/network-issues)
