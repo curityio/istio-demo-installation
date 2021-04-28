@@ -128,6 +128,10 @@ It is resolved by overriding the default to avoid adding a sidecar to the job co
 Curity PODS take 5 to 10 minutes to reach a ready state and are quite a bit slower than usual.\
 I need to understand how to troubleshoot this better.
 
+## Issue 3: Runtime Node Not Healthy
+
+See the [Problem Document](PROBLEMS.md) for further details, which I think I will resolve shortly.
+
 ## Current State
 
 - Deployment produces a working Admin UI
