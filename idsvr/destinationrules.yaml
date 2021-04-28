@@ -7,7 +7,7 @@ kind: DestinationRule
 metadata:
   name: idsvr-admin-destinationrule
 spec:
-  host: curity-idsvr-admin-svc.default.svc.cluster.local
+  host: curity-idsvr-admin-svc
   trafficPolicy:
     tls:
       mode: SIMPLE
@@ -17,7 +17,7 @@ kind: DestinationRule
 metadata:
   name: idsvr-runtime-destinationrule
 spec:
-  host: curity-idsvr-runtime-svc.default.svc.cluster.local
+  host: curity-idsvr-runtime-svc
   trafficPolicy:
     tls:
       mode: SIMPLE

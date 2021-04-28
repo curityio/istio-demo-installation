@@ -112,7 +112,7 @@ fi
 #
 # Once the pods come up we can call them over these URLs externally:
 #
-# - curl 'https://admin.example.com/admin/api/restconf/data?depth=unbounded&content=config'
+# - curl -u 'admin:Password1' 'https://admin.example.com/admin/api/restconf/data?depth=unbounded&content=config'
 # - curl 'https://login.example.com/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
 #
 # Inside the cluster we can use these URLs: 

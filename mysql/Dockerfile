@@ -10,5 +10,5 @@ FROM mysql:8.0.22
 RUN apt-get update
 RUN apt-get install curl -y
 
-# Copy in a script to restore SQL data
+# Run our latest backed up SQL data whenever the pod is deployed
 COPY mysql/idsvr-data-backup.sql /docker-entrypoint-initdb.d/

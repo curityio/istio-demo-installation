@@ -199,6 +199,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/path: /metrics
         prometheus.io/port: "4466"
+        sidecar.istio.io/inject: "false"
     spec:
       containers:
         - name: idsvr-admin
@@ -297,6 +298,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/path: /metrics
         prometheus.io/port: "4466"
+        sidecar.istio.io/inject: "false"
     spec:
       containers:
         - name: idsvr-runtime

@@ -16,7 +16,7 @@ USER root
 COPY idsvr/mysql-connector-java-8.0.22.jar /opt/idsvr/lib/plugins/data.access.jdbc
 
 # INFO level logs
-COPY idsvr/log4j2.xml  /opt/idsvr/etc/
+COPY idsvr/log4j2.xml /opt/idsvr/etc/
 
 # The HAAPI web sample
 COPY haapi-web/* /opt/idsvr/usr/share/webroot/
