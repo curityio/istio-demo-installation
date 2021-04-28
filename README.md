@@ -76,7 +76,7 @@ This is because the Create Cluster script made Istio injection the default behav
 Istio requires different ingress components to a base Kubernetes install.\
 This includes use of Gateway / Virtual Service / Destination Rule components:
 
-- [Gateway](./base/https-gateway.yaml)
+- [Gateway](./base/gateway.yaml)
 - [Virtual Services](./idsvr/virtualservices.yaml)
 - [Destination Rules](./idsvr/destinationrules.yaml)
 
@@ -113,7 +113,7 @@ For normal Kubernetes I have used [cert-manager](https://github.com/jetstack/cer
 
 ## Issue 1: Cluster Configuration
 
-I experienced an error in the Cluster Conf Job due to the createConfigSecret openssl call failing.\
+experienced an error in the Cluster Conf Job due to the createConfigSecret openssl call failing.\
 I think the cause was the openssl call being made too early, before the sidecar proxy was ready.\
 It is resolved by overriding the default to avoid adding a sidecar to the job component:
 

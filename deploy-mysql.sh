@@ -18,9 +18,9 @@ then
 fi
 
 #
-# Tear down the instance and lose all data
+# Tear down the instance and lose all data, which will be reapplied from the backup
 #
-kubectl delete mysql/service-mysql.yaml 2>/dev/null
+kubectl delete -f mysql/service.yaml 2>/dev/null
 
 #
 # Build a custom docker image containing backed up data
@@ -35,7 +35,7 @@ fi
 #
 # Deploy the mysql instance
 #
-kubectl apply -f mysql/service-mysql.yaml
+kubectl apply -f mysql/service.yaml
 if [ $? -ne 0 ];
 then
   echo "Problem encountered deploying the MySql service"

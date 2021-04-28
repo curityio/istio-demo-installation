@@ -18,10 +18,10 @@ COPY idsvr/mysql-connector-java-8.0.22.jar /opt/idsvr/lib/plugins/data.access.jd
 # INFO level logs
 COPY idsvr/log4j2.xml /opt/idsvr/etc/
 
-# The HAAPI web sample
+# Copy the HAAPI web sample to the server for demo purposes
 COPY haapi-web/* /opt/idsvr/usr/share/webroot/
 
-# Install developer tools in order to troubleshoot connections and SSL trust issues
+# Install developer tools in order to troubleshoot connections
 RUN apt-get update
 RUN apt-get install curl -y
 RUN apt-get install mysql-client -y

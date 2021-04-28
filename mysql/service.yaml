@@ -1,6 +1,5 @@
 #
-# A basic Kubernetes deployment file for MySql
-# This intentionally avoids persistent storage and data is instead persisted to the data folder
+# A basic Kubernetes deployment file for MySql that avoids persistent storage for simplicity
 #
 
 kind: Service
@@ -32,8 +31,6 @@ spec:
     metadata:
       labels:
         app: mysql
-      annotations:
-        sidecar.istio.io/inject: "false"
     spec:
       containers:
       - name: mysql

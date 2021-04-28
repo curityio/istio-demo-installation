@@ -8,7 +8,6 @@
 # Create or start the cluster
 # https://istio.io/latest/docs/setup/platform-setup/minikube
 #
-minikube delete --profile example
 minikube start --cpus=4 --memory=16384 --disk-size=100g --kubernetes-version=v1.21.0 --profile example
 
 #
@@ -48,3 +47,9 @@ fi
 #
 kubectl delete -f base/gateway.yaml 2> /dev/null
 kubectl apply  -f base/gateway.yaml
+
+#
+# Free memory by stopping the profile or delete the profile permanently if you prefer
+# - minikube stop --profile example
+# - minikube delete --profile example
+#
