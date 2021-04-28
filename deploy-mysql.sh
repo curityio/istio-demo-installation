@@ -43,7 +43,7 @@ then
 fi
 
 #
-# Once the pod comes up we can connect to it as follows from the MacBook:
+# Once the pod comes up we can connect to it as follows from the MacBook, if MySql is installed:
 # - mysql -h $(minikube ip) -P 30306 -D idsvr -u root -pPassword1
 #
 # From Curity containers inside the cluster we can use the following command:

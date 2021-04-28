@@ -4,11 +4,13 @@ A small repo for running an end to end solution on a MacBook with Istio and the 
 
 ## Prerequisites
 
-Install Docker for MacOS if required, then install Minikube as a local Kubernetes cluster:
+Install Docker for MacOS if required, then install Minikube as a local Kubernetes cluster.\
+Also install the [yq tool](https://github.com/mikefarah/yq), used to automate some Kubernetes annotation updates.
 
 - brew update
 - brew install minikube
 - minikube config set driver hyperkit
+- brew install yq
 
 ## Cluster Base Setup
 
@@ -73,7 +75,7 @@ This is because the Create Cluster script made Istio injection the default behav
 
 ## View Ingress Details
 
-Istio requires different ingress components to a base Kubernetes install.\
+Istio uses different ingress components with richer options than the base Kubernetes ingress.\
 This includes use of Gateway / Virtual Service / Destination Rule components:
 
 - [Gateway](./base/gateway.yaml)
@@ -86,63 +88,24 @@ Extra networking objects then become available for managing the cluster:
 - kubectl get virtualservice
 - kubectl get destinationrule
 
-## Use the System
+## Use the Identity Server Externally
 
-The goal is to browse to these working URLs, though the second does not work currently:
+Browse to these working URLs:
 
 - https://admin.example.com/admin
 - https://login.example.com/oauth/v2/oauth-anonymous/.well-known/openid-configuration
 
-Once working you will be able to do a login using the HAAPI Web Sample:
+Then login using the HAAPI Web Sample:
 
 - https://login.example.com/demo-client.html
 - john.doe
 - Password1
 
-## Make Calls between Internal Services
+## Connect to the Identity Server Inside the Cluster
 
 Start a shell and test connectivity to the Curity Identity Server:
 
 - POD=$(kubectl get pods -o name | grep webhost)
 - kubectl exec -it $POD -- sh
-- curl -k -u 'admin:Password1' 'https://curity-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
+- curl -u 'admin:Password1' 'http://curity-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
 - curl -k 'https://curity-idsvr-runtime-svc:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
-
-Connectivity works though I should be able to avoid the -k parameter to bypass SSL Trust.\
-For normal Kubernetes I have used [cert-manager](https://github.com/jetstack/cert-manager) to issue self signed internal certificates when pods start.
-
-## Issue 1: Cluster Configuration
-
-experienced an error in the Cluster Conf Job due to the createConfigSecret openssl call failing.\
-I think the cause was the openssl call being made too early, before the sidecar proxy was ready.\
-It is resolved by overriding the default to avoid adding a sidecar to the job component:
-
-- spec:
-    template:
-      metadata:
-        annotations:
-          sidecar.istio.io/inject: "false"
-
-## Issue 2: Slow Startup
-
-Curity PODS take 5 to 10 minutes to reach a ready state and are quite a bit slower than usual.\
-I need to understand how to troubleshoot this better.
-
-## Issue 3: Runtime Node Not Healthy
-
-See the [Problem Document](PROBLEMS.md) for further details, which I think I will resolve shortly.
-
-## Current State
-
-- Deployment produces a working Admin UI
-- Runtime Node connects to Admin Node after 5 to 10 minutes - but not always
-- Runtime Node connection works externally but no OIDC metadata is returned
-- Cannot call admin node inside the cluster - though it has worked before
-- Cannot call runtime node inside the cluster - this has never worked
-
-## Tasks
-
-- Upgrade to a MySql connection and 2 runtime nodes
-- Get the backup script working with data for john.doe test user
-- Get HAAPI web sample working
-- Use the [yq tool](https://github.com/mikefarah/yq) to automate the update to apply the annotation to the cluster job

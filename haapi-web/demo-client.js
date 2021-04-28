@@ -87,6 +87,10 @@ function Curity(viewsElement, codeElement, callback, apiFetch) {
         apiRequest(authorizeUrl);
     }
 
+    this.goTo = (url) => {
+        apiRequest(url);
+    }
+
     function generatePage(json, autoFollowLinks) {
         json = json || {};
         let components = [];
@@ -354,7 +358,8 @@ function Curity(viewsElement, codeElement, callback, apiFetch) {
         formElement.append(views.Button({
             label: `${statusCode}`,
             color: statusCode >= 400 ? 'warning' : 'navy',
-            big: true
+            big: true,
+            id: 'status-code'
         }));
 
         formElement.append(views.Ruler());
@@ -630,8 +635,11 @@ function Curity(viewsElement, codeElement, callback, apiFetch) {
             return root;
         },
 
-        Button: function ({label, onClick, color, disabled, big, name}) {
+        Button: function ({label, onClick, color, disabled, big, name, id}) {
             const button = document.createElement('div');
+            if (id) {
+                button.id = id
+            }
             button.classList.add('siimple--mb-4', 'siimple-btn', `siimple-btn--${color || 'blue'}`, name);
             if (big) {
                 button.classList.add('siimple-btn--big');
@@ -655,6 +663,7 @@ function Curity(viewsElement, codeElement, callback, apiFetch) {
         ErrorMessage: function (message) {
             const errorElement = document.createElement('div');
             errorElement.classList.add("siimple-tip", "siimple-tip--error");
+            errorElement.id = 'error-message-id'
             errorElement.textContent = message;
             return errorElement;
         },

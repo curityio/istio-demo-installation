@@ -13,7 +13,7 @@ Perhaps the end result would be a more `production like developer setup`, using 
 
 ## Article 1: Deploying Identity Server to Kubernetes Walkthrough
 
-An article on taking control of the YAML, refining it, and troubleshooting.\
+An article on taking control of the Kubernetes YAML, refining it, and troubleshooting.\
 Certain best practices and background will be useful for customers to understand.
 
 ## Article 2: Adding an API Gateway

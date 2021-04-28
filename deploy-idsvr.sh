@@ -54,7 +54,7 @@ HELM_FOLDER=~/tmp/idsvr-helm
 rm -rf $HELM_FOLDER
 git clone https://github.com/curityio/idsvr-helm $HELM_FOLDER
 cp idsvr/helm-values.yaml $HELM_FOLDER/idsvr
-#helm template curity $HELM_FOLDER/idsvr --values $HELM_FOLDER/idsvr/helm-values.yaml > idsvr/idsvr.yaml
+#helm template curity $HELM_FOLDER/idsvr --values $HELM_FOLDER/idsvr/helm-values.yaml > idsvr/idsvr-complete.yaml
 if [ $? -ne 0 ];
 then
   echo "Problem encountered creating Kubernetes YAML from the Identity Server Helm Chart"
@@ -79,8 +79,8 @@ fi
 #
 # Force a redeploy of the system
 #
-kubectl delete -f idsvr/idsvr.yaml 2>/dev/null
-kubectl apply -f idsvr/idsvr.yaml
+kubectl delete -f idsvr/idsvr-complete.yaml 2>/dev/null
+kubectl apply -f idsvr/idsvr-complete.yaml
 if [ $? -ne 0 ];
 then
   echo "Problem encountered applying Kubernetes YAML"

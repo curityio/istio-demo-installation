@@ -1,17 +1,10 @@
 #
-# This is needed in order for both internal and external calls to Curity endpoints to work
+# These are needed to ensure that nodes can be called over SSL when needed
+# The runtime mode can use both SSL and non SSL inside the cluster
+# Its certificate is retrieved via this command:
+# - openssl s_client -showcerts -connect curity-idsvr-runtime-svc:8443
 #
 
-apiVersion: networking.istio.io/v1beta1
-kind: DestinationRule
-metadata:
-  name: idsvr-admin-destinationrule
-spec:
-  host: curity-idsvr-admin-svc
-  trafficPolicy:
-    tls:
-      mode: SIMPLE
----
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
@@ -21,3 +14,29 @@ spec:
   trafficPolicy:
     tls:
       mode: SIMPLE
+---
+
+#
+# The admin node can only use SSL inside the cluster and does not have an SSL certificate
+# However, port 6789 does something unusual in order to be called over Mutual TLS from the runtime node
+# These two commands return different results and neither has a proper SSL certificate:
+# - openssl s_client -showcerts -connect curity-idsvr-admin-svc:6749
+# - openssl s_client -showcerts -connect curity-idsvr-admin-svc:6789
+#
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: idsvr-admin-destinationrule
+spec:
+  host: curity-idsvr-admin-svc
+  
+  trafficPolicy:
+    portLevelSettings:
+    - port:
+        number: 6749
+      tls:
+        mode: SIMPLE
+    - port:
+        number: 6789
+      tls:
+        mode: SIMPLE

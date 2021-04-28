@@ -40,6 +40,12 @@ Exposing HTTP endpoints outside the cluster requires the following Istio objects
 | Virtual Service | Exposes a service via the gateway, by specifying the internal service name |
 | Destination Rule | Needed to specify that HTTPS is used inside the cluster, as for Identity Server containers |
 
+## Interop
+
+The Mutual TLS connection from the runtime to the admin node may not be Istio compliant.\
+We would therefore operate as a `Non Istio Component`in an Istio cluster.\
+There are rules around calls between [Istio and Non Istio Components](https://istio.io/latest/faq/security/#non-istio-to-istio).
+
 ## Managing Istio Sidecar Component Details
 
 To find issues where the Istio Proxy on the admin node has prevented a connection:

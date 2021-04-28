@@ -1,6 +1,5 @@
 #
 # Expose the identity server's HTTP endpoints using the below DNS names
-# The TLS part of the connection is specified separately in the Destination Rules
 #
 
 apiVersion: networking.istio.io/v1beta1

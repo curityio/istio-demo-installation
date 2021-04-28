@@ -88,7 +88,7 @@
                             URL</label>
                         <input type="text" id="oauth-authorize-url" class="siimple-input siimple-input--fluid"
                                placeholder="https://oauth/authorize"
-                               value="https://login.example.com/oauth/v2/oauth-authorize?client_id=haapi-web-client&response_type=code&scope=openid&state=c5f933dabcd74550890fc388c876567b&redirect_uri=https://localhost:7777/callback&code_challenge=terRch94pEu0Cp4TsvHD3s29Ut6JX6yQ2UUWSNiHkpc&code_challenge_method=S256">
+                               value="https://login.example.com/oauth/v2/oauth-authorize?client_id=haapi-web-client&response_type=code&scope=read&state=foo&redirect_uri=https://localhost:7777/callback">
                     </div>
                     <div class="siimple-form-field">
                         <div class="siimple-btn siimple-btn--primary" id="start-submit-button"
@@ -138,12 +138,15 @@ the @curity/identityserver-haapi-web-driver NPM package, either by bundling or d
     const codeElement = document.getElementById('code-element');
     const viewsElement = document.getElementById('views-element');
 
-    const config = {
-        clientId: 'haapi-web-client',
-        tokenEndpoint: 'https://login.example.com/oauth/v2/oauth-token',
-        
+    const config = buildConfiguration();
+
+    document.getElementById('oauth-authorize-url').value = config.authorizationRequest;
+
+    const fetchConfig = {
+        clientId: config.haapiClientId,
+        tokenEndpoint: config.tokenEndpoint,
     }
-    const apiFetch = HaapiDriver.createHaapiFetch(config);
+    const apiFetch = HaapiDriver.createHaapiFetch(fetchConfig);
     const curity = new Curity(viewsElement, codeElement, authorizationDone, apiFetch);
 
     document.getElementById('start-submit-button').onclick = function () {
@@ -189,6 +192,28 @@ the @curity/identityserver-haapi-web-driver NPM package, either by bundling or d
 
     function followRedirects(follow) {
         curity.followRedirects(follow);
+    }
+
+    function buildConfiguration() {
+
+        const paramsFromQueryString = new URLSearchParams(window.location.search);
+        const haapiClientId = paramsFromQueryString.get('haapi_client_id') || 'haapi-public-client';
+        const oauthClientId = paramsFromQueryString.get('oauth_client_id') || 'haapi-public-client';
+        const redirectUri = paramsFromQueryString.get('redirect_uri') || 'https://localhost:7777/callback';
+
+        const params = new URLSearchParams({
+            client_id: oauthClientId,
+            redirect_uri: redirectUri,
+            response_type: 'code',
+            scope: 'read',
+            state: 'foo'
+        })
+
+        return {
+            authorizationRequest: `https://login.example.com/oauth/v2/oauth-authorize?${params}`,
+            haapiClientId,
+            tokenEndpoint: 'https://login.example.com/oauth/v2/oauth-token'
+        }
     }
 
 </script>

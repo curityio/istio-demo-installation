@@ -1,56 +1,33 @@
 ## Overview
 
-The following areas are either problems or areas that I need to understand better.
+The following areas summarise problems with default behavior:
 
-## 1. Missing Runtine Node within the Admin UI
+## Issue 1: Cluster Configuration
 
-I need to look deeper into [Curity Cluster Configuration](https://curity.io/resources/learn/intro-to-cluster/).\
-My main problem seems to be that runtime nodes cannot connect over port 6789 to the admin node.\
-Runtime sidecar components are both showing response codes 'UF' related to port 6789:
+I experienced an error in the Cluster Conf Job due to the createConfigSecret openssl call failing.\
+I think the cause was the openssl call being made too early, before the sidecar proxy was ready.\
+It is resolved by overriding the default to avoid adding a sidecar to the job component:
 
-- Failed to connect to upstream
+- spec:
+    template:
+      metadata:
+        annotations:
+          sidecar.istio.io/inject: "false"
 
-## 2. SSL Trust
+## Issue 2: Slow POD Startup
 
-I don't think this is the cause, since the admin node shows a valid certificate.\
-The runtime node does not however, suggesting that it perhaps needs to download it over port 6789.
+Curity PODS take 5 to 10 minutes to reach a ready state and are quite a bit slower than usual.\
+During this time the Istio sidecar is in a ready state but admin and runtime nodes are not.
 
-- openssl s_client -connect curity-idsvr-admin-svc:6749
-- openssl s_client -connect curity-idsvr-admin-svc:6789
-- openssl s_client -connect curity-idsvr-runtime-svc:8443
+## TODO
 
-I need to better understand exact details of how the default Curity SSL certificate is generated and trusted.
-Using `curl -v\ shows that this file is used for SSL trust and that TLS 1.3 is used.
+Minor things:
 
-* /etc/ssl/certs/ca-certificates.crt
+- Get HAAPI working
+- YAML automated updates
+- SQL updates and storage of john.doe user + password
 
-I think some customers will want to use volume mounts to pick up [cert-manager](https://github.com/jetstack/cert-manager) issued certificates.
+Major thing:
 
-## 3. Inter Container Calls
-
-Calling admin HTTP endpoints sometimes results in this error:
-
-- curl -k -u 'admin:Password1' 'https://curity-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
-- curl: (35) error:1408F10B:SSL routines:ssl3_get_record:wrong version number
-
-Calling runtime HTTP endpoints always results in this error.\
-Note that calling port 6789 on the admin node also produces this error.
-
-- curl -k 'https://curity-idsvr-runtime-svc:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
-- curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to curity-idsvr-runtime-svc:8443
-
-Since the runtime node is not contactable internally, the ingress to https://login.example.com also fails:
-
-- upstream connect error or disconnect/reset before headers. reset reason: connection failure
-
-## 4. Possible DNS / Port Conflicts
-
-It is possible that some of my entries conflict with each other in terms of DNS.\
-Initially I used a different gateway for each subdomain but this also had problems.
-
-https://github.com/istio/istio/issues/16531
-
-## UPDATE
-
-Issue with POD:
-https://github.com/istio/istio/issues/14942
+Nodes take 10 minutes to reach a ready state due to calls from runtime to admin nodes over port 6789.\
+This may be related to calls to port 6789 and the comments in [this file](./idsvr/virtualservices.yaml).
