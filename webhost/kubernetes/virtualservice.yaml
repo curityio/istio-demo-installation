@@ -10,7 +10,7 @@ spec:
   hosts:
   - web.example.com
   gateways:
-  - web-gateway
+  - https-gateway
   http:
   - route:
     - destination:

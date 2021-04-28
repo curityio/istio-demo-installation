@@ -32,6 +32,7 @@ kubectl label namespace default istio-injection=enabled
 
 #
 # Create a secret for the wildcard external SSL certificate for *.example.com
+# Note that this must be deployed to the istio-system namespace
 #
 cd -
 kubectl delete secret example-com-tls -n istio-system 2>/dev/null
@@ -45,5 +46,5 @@ fi
 #
 # Create the gateway object to expose services over port 443
 #
-kubectl delete -f base/https-gateway.yaml 2> /dev/null
-kubectl apply  -f base/https-gateway.yaml
+kubectl delete -f base/gateway.yaml 2> /dev/null
+kubectl apply  -f base/gateway.yaml

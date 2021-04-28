@@ -1,11 +1,12 @@
 #
-# Expose the web host at https://web.example.com
+# Base support for exposing services via SSL endpoints
+# Each service also needs a virtual service file
 #
 
 apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:
-  name: web-gateway
+  name: https-gateway
 spec:
   selector:
     istio: ingressgateway
@@ -18,4 +19,4 @@ spec:
       mode: SIMPLE
       credentialName: example-com-tls
     hosts:
-    - web.example.com
+    - "*.example.com"

@@ -11,13 +11,18 @@ spec:
   hosts:
   - admin.example.com  
   gateways:
-  - idsvr-admin-gateway
+  - https-gateway
   http:
   - route:
     - destination:
         host: curity-idsvr-admin-svc
         port:
           number: 6749
+  - route:
+    - destination:
+        host: curity-idsvr-admin-svc
+        port:
+          number: 6789
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
@@ -27,7 +32,7 @@ spec:
   hosts:
   - login.example.com
   gateways:
-  - idsvr-runtime-gateway
+  - https-gateway
   http:
   - route:
     - destination:
