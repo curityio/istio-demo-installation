@@ -1,0 +1,39 @@
+#
+# Expose the Identity Server at https://admin.example.com and https://login.example.com
+#
+
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: idsvr-admin-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: example-com-tls
+    hosts:
+    - admin.example.com
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: idsvr-runtime-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: example-com-tls
+    hosts:
+    - login.example.com

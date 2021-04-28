@@ -49,3 +49,8 @@ It is possible that some of my entries conflict with each other in terms of DNS.
 Initially I used a different gateway for each subdomain but this also had problems.
 
 https://github.com/istio/istio/issues/16531
+
+## UPDATE
+
+Issue with POD:
+https://github.com/istio/istio/issues/14942

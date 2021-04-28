@@ -34,8 +34,8 @@ kubectl label namespace default istio-injection=enabled
 # Create a secret for the wildcard external SSL certificate for *.example.com
 #
 cd -
-kubectl delete secret example-com-tls 2>/dev/null
-kubectl create secret tls example-com-tls --cert='./certs/example.com.ssl.pem' --key='./certs/example.com.ssl.key'
+kubectl delete secret example-com-tls -n istio-system 2>/dev/null
+kubectl create secret tls example-com-tls --cert='./certs/example.com.ssl.pem' --key='./certs/example.com.ssl.key' -n istio-system
 if [ $? -ne 0 ]
 then
   echo "*** Problem creating secret for external SSL certificate ***"

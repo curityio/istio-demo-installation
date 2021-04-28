@@ -1,12 +1,11 @@
 #
-# An Istio destination rule to enable services to be exposed over port 443
-# Each individual service then needs to add a virtual service with its own routing
+# Expose the web host at https://web.example.com
 #
 
 apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:
-  name: https-gateway
+  name: web-gateway
 spec:
   selector:
     istio: ingressgateway
@@ -19,4 +18,4 @@ spec:
       mode: SIMPLE
       credentialName: example-com-tls
     hosts:
-    - "*"
+    - web.example.com

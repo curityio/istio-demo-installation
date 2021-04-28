@@ -1,6 +1,5 @@
 #
-# Expose the web host at a URL such as https://web.example.com
-# https://www.digitalocean.com/community/tutorials/how-to-install-and-use-istio-with-kubernetes
+# Expose the web host at https://web.example.com
 #
 
 apiVersion: networking.istio.io/v1beta1
@@ -11,7 +10,7 @@ spec:
   hosts:
   - web.example.com
   gateways:
-  - https-gateway
+  - web-gateway
   http:
   - route:
     - destination:
