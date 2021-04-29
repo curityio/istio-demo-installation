@@ -206,8 +206,7 @@ spec:
           image: "custom_idsvr:6.1.0"
           imagePullPolicy: Never
           command: ["/opt/idsvr/bin/idsvr"]
-          args: ["-s", "admin",
-                 "-N", "idsvr-admin","--admin"]
+          args: ["-s", "admin", "-N", "idsvr-admin", "--admin"]
           env:
             - name: STATUS_CMD_PORT
               value: "4465"
@@ -234,7 +233,7 @@ spec:
             httpGet:
               path: /
               port: health-check
-            timeoutSeconds:  1
+            timeoutSeconds: 1
             failureThreshold: 3
             periodSeconds: 10
             initialDelaySeconds: 600
@@ -242,7 +241,7 @@ spec:
             httpGet:
               path: /
               port: health-check
-            timeoutSeconds:  1
+            timeoutSeconds: 1
             failureThreshold: 3
             successThreshold: 3
             periodSeconds: 10
@@ -256,8 +255,7 @@ spec:
               subPath: idsvr-config-backup.xml
               name: configmap-config
               readOnly: true
-          resources:
-            {}
+          resources: {}
       volumes:
         - name: cluster-xml
           secret:
@@ -305,7 +303,7 @@ spec:
           image: "custom_idsvr:6.1.0"
           imagePullPolicy: Never
           command: ["/opt/idsvr/bin/idsvr"]
-          args: ["-s", "default","--no-admin"]
+          args: ["-s", "default", "--no-admin"]
           env:
             - name: STATUS_CMD_PORT
               value: "4465"
@@ -325,7 +323,7 @@ spec:
             httpGet:
               path: /
               port: health-check
-            timeoutSeconds:  1
+            timeoutSeconds: 1
             failureThreshold: 3
             periodSeconds: 10
             initialDelaySeconds: 600
@@ -333,7 +331,7 @@ spec:
             httpGet:
               path: /
               port: health-check
-            timeoutSeconds:  1
+            timeoutSeconds: 1
             failureThreshold: 3
             successThreshold: 3
             periodSeconds: 10
@@ -347,8 +345,7 @@ spec:
               subPath: idsvr-config-backup.xml
               name: configmap-config
               readOnly: true
-          resources:
-            {}
+          resources: {}
       volumes:
         - name: cluster-xml
           secret:
@@ -373,14 +370,11 @@ metadata:
 spec:
   ttlSecondsAfterFinished: 60
   template:
-    metadata:
-      annotations:
-        sidecar.istio.io/inject: "false"
     spec:
       containers:
         - name: curity-idsvr-cluster-conf-job
           image: "custom_idsvr:6.1.0"
-          command: ["sh",  "/opt/idsvr/bin/createConfigSecret.sh"]
+          command: ["sh", "/opt/idsvr/bin/createConfigSecret.sh"]
           env:
             - name: CONFIG_SERVICE_HOST
               value: curity-idsvr-admin-svc
@@ -390,7 +384,6 @@ spec:
               value: curity-idsvr-cluster-config-xml
             - name: REVISION
               value: "1"
-            
           volumeMounts:
             - name: entrypoint-volume
               mountPath: /opt/idsvr/bin/createConfigSecret.sh
@@ -401,3 +394,6 @@ spec:
             name: curity-idsvr-cluster-conf-map
       serviceAccountName: curity-idsvr-service-account
       restartPolicy: Never
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"

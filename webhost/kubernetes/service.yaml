@@ -28,7 +28,6 @@ spec:
     metadata:
       labels:
         app: webhost
-        
     spec:
       containers:
       - name: webhost
