@@ -197,8 +197,8 @@ the @curity/identityserver-haapi-web-driver NPM package, either by bundling or d
     function buildConfiguration() {
 
         const paramsFromQueryString = new URLSearchParams(window.location.search);
-        const haapiClientId = paramsFromQueryString.get('haapi_client_id') || 'haapi-public-client';
-        const oauthClientId = paramsFromQueryString.get('oauth_client_id') || 'haapi-public-client';
+        const haapiClientId = paramsFromQueryString.get('haapi_client_id') || 'haapi-web-client';
+        const oauthClientId = paramsFromQueryString.get('oauth_client_id') || 'haapi-web-client';
         const redirectUri = paramsFromQueryString.get('redirect_uri') || 'https://localhost:7777/callback';
 
         const params = new URLSearchParams({

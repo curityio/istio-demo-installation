@@ -41,13 +41,4 @@ The script calls the REST API to download configuration, which has multiple form
 ```
 
 The backed up configuration file is deployed via a ConfigMap to /opt/idsvr/etc/init/configmap-config.xml.\
-However, if the REST API format is used the container fails to start - is this expected behavior?
-
-## Issue 4: HAAPI Web Sample
-
-For some reason the deployed HAAPI web sample only seems to work in the Safari browser on MacOS.\
-I am in the process of troubleshooting this:
-
-- https://login.example.com/demo-client.html
-- john.doe
-- Password1
+If an XML file with the REST API format is used the container fails to start - is this expected behavior?
