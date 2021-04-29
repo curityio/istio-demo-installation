@@ -10,6 +10,7 @@ Also install the [yq tool](https://github.com/mikefarah/yq), used to automate so
 
 - brew update
 - brew install minikube
+- brew install helm
 - minikube config set driver hyperkit
 - brew install yq
 
