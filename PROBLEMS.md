@@ -2,7 +2,7 @@
 
 The following areas summarise open issues to the best of my current understanding.
 
-## Issue 1: Identity Server does Not Support Sidecar Proxies
+## Issue 1: Identity Server does not support Sidecar Proxies
 
 An option in deploy-idsvr.sh can be used to deploy Identity Server with Istio sidecar proxies.\
 The admin node deploys fine but the runtime node can never connect to the admin node.\
@@ -15,7 +15,7 @@ Rules around TLS connections are a little tricky to understand and these are my 
 - [Identity Server Virtual Services](./idsvr/virtualservices.yaml)
 - [Identity Server Destination Rules](./idsvr/destinationrules.yaml)
 
-## Issue 2: Slow POD Startup even without Sidecar Proxies
+## Issue 2: Slow POD Startup in an Istio Cluster
 
 Curity PODS take around 10 minutes to reach a ready state, whether or not sidecar proxies are used.\
 This needs to be better understood in terms of troubleshooting:
