@@ -28,7 +28,7 @@ fi
 #
 # Uninstall the existing system if applicable
 #
-kubectl delete -f idsvr/idsvr.yaml 2>/dev/null
+kubectl delete -f idsvr/idsvr-final.yaml 2>/dev/null
 
 #
 # Create the config map referenced in the helm-values.yaml file
@@ -44,7 +44,7 @@ then
 fi
 
 #
-# Extract the raw Kubernetes yaml from the Helm chart and the values file
+# Extract the raw Kubernetes yaml produced from the Helm chart and the values file
 #
 HELM_FOLDER=~/tmp/idsvr-helm
 rm -rf $HELM_FOLDER
@@ -60,12 +60,13 @@ fi
 #
 # Run a child script that controls whether Identity Server pods use sidecars
 # This creates idsvr-final.yaml from idsvr-helm.yaml
-# Also use the same sidecar setting in the deploy_mysql.sh script
+# Ensure that the same sidecar setting is used in the deploy_mysql.sh script
 #
 cd idsvr
 USE_ISTIO_SIDECARS="false"
 ./istio-annotations.sh $USE_ISTIO_SIDECARS
 cd ..
+rm idsvr/idsvr-helm.yaml
 
 #
 # Force a redeploy of the system

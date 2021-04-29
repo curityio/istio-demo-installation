@@ -1,9 +1,8 @@
 #!/bin/bash
 
-##############################################################
-# Dynamically apply Istio annotations to Kubernetes YAML files
-# This requires some hacky annotations
-##############################################################
+##############################################################################################
+# Dynamically apply Istio annotations to Kubernetes YAML files, which requires some hacky code
+##############################################################################################
 
 #
 # A command line parameter indicates whether to use sidecars, so that we can test both setups
@@ -28,7 +27,7 @@ RUNTIME_DEPLOYMENT=${FILES[LENGTH - 2]}
 ADMIN_DEPLOYMENT=${FILES[LENGTH - 3]}
 
 #
-# Run yq to set the annotation, and note that sidecars are always disabled for the conf job to prevent this error:
+# Run yq to set the annotation, and note that sidecars are always disabled for the conf job, to prevent this error:
 #
 # 1- 39906036158912:error:0200206F:system library:connect:Connection refused:../crypto/bio/b_sock2.c:110:
 # - 139906036158912:error:2008A067:BIO routines:BIO_connect:connect error:../crypto/bio/b_sock2.c:111:
