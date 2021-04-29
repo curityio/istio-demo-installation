@@ -293,9 +293,10 @@ function Curity(viewsElement, codeElement, callback, apiFetch) {
             body = data;
         }
         try {
+            console.log(`*** FETCH REQUEST: ${link}, ${method}, ${body}`);
             const response = await apiFetch(link, {method, body});
             const text = await response.text();
-            console.log(`HTTP response body: ${text}`);
+            console.log(`** FETCH RESPONSE: ${text}`);
 
             // status codes without a parse-able body
             if (response.status === 204

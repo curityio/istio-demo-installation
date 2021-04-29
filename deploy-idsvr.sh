@@ -58,9 +58,14 @@ then
 fi
 
 #
-# Run a child script to set Istio annotations against the Kubernetes yaml
+# Run a child script that controls whether Identity Server pods use sidecars
+# This creates idsvr-final.yaml from idsvr-helm.yaml
+# Also use the same sidecar setting in the deploy_mysql.sh script
 #
-./istio-annotations.sh
+cd idsvr
+USE_ISTIO_SIDECARS="false"
+./istio-annotations.sh $USE_ISTIO_SIDECARS
+cd ..
 
 #
 # Force a redeploy of the system

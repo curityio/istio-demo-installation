@@ -173,7 +173,7 @@
             <AppenderRef ref="alarms-log"/>
         </Logger>
 
-        <AsyncRoot level="DEBUG">
+        <AsyncRoot level="INFO">
             <AppenderRef ref="rewritten-stdout"/>
             <AppenderRef ref="request-log"/>
             <AppenderRef ref="metrics"/>

@@ -1,43 +1,53 @@
 ## Overview
 
-The following areas summarise problems with default behavior:
+The following areas summarise open issues to the best of my current understanding.
 
-## Issue 1: Cluster Configuration
+## Issue 1: Identity Server does Not Support Sidecar Proxies
 
-I experienced an error in the Cluster Conf Job due to the createConfigSecret openssl call failing:
+An option in deploy-idsvr.sh can be used to deploy Identity Server with Istio sidecar proxies.\
+The admin node deploys fine but the runtime node can never connect to the admin node.\
+This seems to be related to use of port 6789 and a runtime Mutual TLS connection.
 
-- 139906036158912:error:0200206F:system library:connect:Connection refused:../crypto/bio/b_sock2.c:110:
-- 139906036158912:error:2008A067:BIO routines:BIO_connect:connect error:../crypto/bio/b_sock2.c:111:
-- connect:errno=111
+The admin node does not have a permanent TLS endpoint.\
+This may conflict with Istio's default setup of Mutual TLS connections between sidecar proxies.\
+Rules around TLS connections are a little tricky to understand and these are my current settings:
 
-I think the cause was the openssl call being made too early, before the sidecar proxy was ready.\
-It is resolved by overriding the default to avoid adding a sidecar to the job component:
+- [Identity Server Virtual Services](./idsvr/virtualservices.yaml)
+- [Identity Server Destination Rules](./idsvr/destinationrules.yaml)
 
-- spec:
-    template:
-      metadata:
-        annotations:
-          sidecar.istio.io/inject: "false"
+## Issue 2: Slow POD Startup even without Sidecar Proxies
 
-- https://github.com/istio/istio/issues/11130
-- https://stackoverflow.com/questions/59235887/how-to-disable-istio-on-k8s-job
+Curity PODS take around 10 minutes to reach a ready state, whether or not sidecar proxies are used.\
+This needs to be better understood in terms of troubleshooting:
 
-## Issue 2: Slow POD Startup
+- 'kubectl logs' for the admin node shows that it soon starts listening on port 6749
+- But the admin node does not reach a ready state for around 10 minutes
+- During this period 'kubectl logs' shows that the runtime node is trying to connect
 
-Curity PODS take 5 to 10 minutes to reach a ready state and are quite a bit slower than usual.\
-During this time the Istio sidecar is in a ready state but admin and runtime nodes are not.
+The diagnostics commands in the [Architecture Document](ARCHITECTURE.MD) do not explain the reasons why.\
+This may need looking at in terms of Identity Server internals.
 
-## TODO
+## Issue 3: Configuration Data Behavior
 
+This repository backs up configuration and SQL data via the [Backup Script](backup-data.sh).\
+The script calls the REST API to download configuration, which has multiple formats:
 
+```bash
+# Download from Admin UI
+<config xmlns="http:\/\/tail-f.com\/ns\/config\/1.0">
 
-Minor things:
+# Download via Admin REST API
+<data xmlns="urn:ietf:params:xml:ns:yang:ietf-restconf">
+```
 
-- Get HAAPI working
-- YAML automated updates
-- SQL updates and storage of john.doe user + password
+The backed up configuration file is deployed via a ConfigMap to /opt/idsvr/etc/init/configmap-config.xml.\
+However, if the REST API format is used the container fails to start - is this expected behavior?
 
-Major thing:
+## Issue 4: HAAPI Web Sample
 
-Nodes take 10 minutes to reach a ready state due to calls from runtime to admin nodes over port 6789.\
-This may be related to calls to port 6789 and the comments in [this file](./idsvr/virtualservices.yaml).
+For some reason the deployed HAAPI web sample only seems to work in the Safari browser on MacOS.\
+I am in the process of troubleshooting this:
+
+- https://login.example.com/demo-client.html
+- john.doe
+- Password1

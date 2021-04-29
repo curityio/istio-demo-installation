@@ -33,6 +33,10 @@ then
 fi
 
 #
+# Set whether to ise an Istio sidecar for MySql via the annotation in mysql/service.yaml
+#
+
+#
 # Deploy the mysql instance
 #
 kubectl apply -f mysql/service.yaml

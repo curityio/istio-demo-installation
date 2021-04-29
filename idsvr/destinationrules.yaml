@@ -1,7 +1,8 @@
 #
 # These are needed to ensure that nodes can be called over SSL when needed
 # The runtime mode can use both SSL and non SSL inside the cluster
-# Its certificate is retrieved via this command:
+# The SSL certificate may not be trusted by apps such as Java / NodeJS / Curl though
+# The certificate is retrieved via this command:
 # - openssl s_client -showcerts -connect curity-idsvr-runtime-svc:8443
 #
 

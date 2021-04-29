@@ -1,11 +1,12 @@
 ## Overview
 
-A small repo for running an end to end solution on a MacBook with Istio and the Curity Identity Server
+A small repo for running an End to End Solution on a MacBook with Istio and the Curity Identity Server.\
+This is meant to provide a more `Real World Developer Setup` that also educates the user.
 
 ## Prerequisites
 
 Install Docker for MacOS if required, then install Minikube as a local Kubernetes cluster.\
-Also install the [yq tool](https://github.com/mikefarah/yq), used to automate some Kubernetes annotation updates.
+Also install the [yq tool](https://github.com/mikefarah/yq), used to automate some updates to Kubernetes files.
 
 - brew update
 - brew install minikube
@@ -47,13 +48,27 @@ This ensures that the wildcard certificate for the above domain names is trusted
 
 ## Deploy a Minimal Web Component
 
-To understand the basics of how Kubernetes and Istio work, run this script:
+To understand the basics of how Kubernetes and Istio work, run this script and see its resources:
 
 - ./deploy-webhost.sh
 
- Then browse to the web URL to see the component successfully render some HTML:
+ Then browse to the web URL to see the component successfully render some trivial HTML:
 
 - https://web.example.com
+
+## View Sidecar Components
+
+Note how the web host's pods now include a sidecar component called 'istio-proxy':
+
+- POD=$(kubectl get pods -o name | grep webhost)
+- kubectl describe $POD
+
+This is because the create-cluster.sh script made Istio injection the default behavior:
+
+- kubectl label namespace default istio-injection=enabled
+
+Generally an Istio cluster can have a mix of Istio components and Non Istio components.\
+Istio components use built in Mutual TLS when they call each other, but interop is also supported.
 
 ## Deploy the Curity Identity Server
 
@@ -62,27 +77,19 @@ Execute these commands to deploy a SQL database and the Identity Server to the c
 - ./deploy-mysql.sh
 - ./deploy-idsvr.sh
 
-## View Sidecar Components
-
-Note how all pods, including those for the Curity Identity Server, now include a sidecar component called 'istio-proxy':
-
-- POD=$(kubectl get pods -o name | grep webhost)
-- kubectl describe $POD
-
-This is because the Create Cluster script made Istio injection the default behavior:
-
-- kubectl label namespace default istio-injection=enabled
+Whether or not the Identity Server uses sidecar proxies is controlled by a USE_ISTIO_SIDECARS flag.\
+This can be toggled within the deploy-idsvr.sh script.
 
 ## View Ingress Details
 
-Istio uses different ingress components with richer options than the base Kubernetes ingress.\
-This includes use of Gateway / Virtual Service / Destination Rule components:
+In an Istio cluster it is recommended to use Istio ingress components with additional capabilities.\
+Components need to define Gateway / Virtual Service / Destination Rule objects:
 
 - [Gateway](./base/gateway.yaml)
 - [Virtual Services](./idsvr/virtualservices.yaml)
 - [Destination Rules](./idsvr/destinationrules.yaml)
 
-Extra networking objects then become available for managing the cluster:
+Extra resources can then be managed by the built in kubectl command:
 
 - kubectl get gateway
 - kubectl get virtualservice
@@ -95,7 +102,7 @@ Browse to these working URLs:
 - https://admin.example.com/admin
 - https://login.example.com/oauth/v2/oauth-anonymous/.well-known/openid-configuration
 
-Then login using the HAAPI Web Sample:
+Then run the HAAPI Web Sample and login using these credentials and the Safari browser:
 
 - https://login.example.com/demo-client.html
 - john.doe
@@ -103,9 +110,10 @@ Then login using the HAAPI Web Sample:
 
 ## Connect to the Identity Server Inside the Cluster
 
-Start a shell and test connectivity to the Curity Identity Server:
+Start a shell to an Istio POD and test connectivity to the Curity Identity Server.\
+This is how customer APIs and web back ends will make connections:
 
 - POD=$(kubectl get pods -o name | grep webhost)
 - kubectl exec -it $POD -- sh
 - curl -u 'admin:Password1' 'http://curity-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
-- curl -k 'https://curity-idsvr-runtime-svc:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
+- curl 'http://curity-idsvr-runtime-svc:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration'

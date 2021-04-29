@@ -3,8 +3,8 @@
 The Identity Server has a reputation of being difficult to deploy compared to PAAS solutions.\
 We want to show that:
 
-- It it not as difficult as some customers think
-- It is worth the effort and you then get excellent control over many capabilities
+- With some training it it not as difficult as customers may think
+- You then get excellent control over many capabilities
 
 ## Suggested Approach
 
