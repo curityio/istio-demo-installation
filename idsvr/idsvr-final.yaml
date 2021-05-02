@@ -236,7 +236,7 @@ spec:
             timeoutSeconds: 1
             failureThreshold: 3
             periodSeconds: 10
-            initialDelaySeconds: 600
+            initialDelaySeconds: 120
           readinessProbe:
             httpGet:
               path: /
@@ -245,7 +245,7 @@ spec:
             failureThreshold: 3
             successThreshold: 3
             periodSeconds: 10
-            initialDelaySeconds: 600
+            initialDelaySeconds: 120
           volumeMounts:
             - mountPath: /opt/idsvr/etc/init/cluster.xml
               subPath: cluster.xml
@@ -326,7 +326,7 @@ spec:
             timeoutSeconds: 1
             failureThreshold: 3
             periodSeconds: 10
-            initialDelaySeconds: 600
+            initialDelaySeconds: 120
           readinessProbe:
             httpGet:
               path: /
@@ -335,7 +335,7 @@ spec:
             failureThreshold: 3
             successThreshold: 3
             periodSeconds: 10
-            initialDelaySeconds: 600
+            initialDelaySeconds: 120
           volumeMounts:
             - mountPath: /opt/idsvr/etc/init/cluster.xml
               subPath: cluster.xml

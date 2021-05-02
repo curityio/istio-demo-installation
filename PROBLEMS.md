@@ -15,17 +15,23 @@ Rules around TLS connections are a little tricky to understand and these are my 
 - [Identity Server Virtual Services](./idsvr/virtualservices.yaml)
 - [Identity Server Destination Rules](./idsvr/destinationrules.yaml)
 
-## Issue 2: Slow POD Startup in an Istio Cluster
+## Issue 2: POD Startup Times could be Improved
 
-Curity PODS take around 10 minutes to reach a ready state, whether or not sidecar proxies are used.\
-This needs to be better understood in terms of troubleshooting:
+Java startup of the Curity Identity Server is fast and takes no more than around 20 seconds.\
+Kubernetes cluster startup is slower than I'd expect though:
 
-- 'kubectl logs' for the admin node shows that it soon starts listening on port 6749
-- But the admin node does not reach a ready state for around 10 minutes
-- During this period 'kubectl logs' shows that the runtime node is trying to connect
+- I use an initialDelaySeconds of 120 and a lower value results in POD restarts
 
-The diagnostics commands in the [Architecture Document](ARCHITECTURE.MD) do not explain the reasons why.\
-This may need looking at in terms of Identity Server internals.
+Using 'kubectl get pods --watch' then results in these startup times on my high spec MacBook:
+
+- NAME                                    READY   STATUS              RESTARTS   AGE
+- curity-idsvr-admin-bdfcc8f99-5sr6n      1/1     Running             0          2m27s
+- curity-idsvr-runtime-559f9dc776-j4zgm   1/1     Running             0          2m31s
+- curity-idsvr-runtime-559f9dc776-px7f6   1/1     Running             0          2m32s
+
+On older hardware it is slower though and there may be some restarts.\
+The calls from runtime to admin node output lots of errors during this stage.\
+There may be some areas for improvement when running in Kubernetes.
 
 ## Issue 3: Configuration Data Behavior
 

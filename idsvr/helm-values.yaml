@@ -30,13 +30,13 @@ curity:
       timeoutSeconds: 1
       failureThreshold: 3
       periodSeconds: 10
-      initialDelaySeconds: 600
+      initialDelaySeconds: 120
     readinessProbe:
       timeoutSeconds: 1
       failureThreshold: 3
       successThreshold: 3
       periodSeconds: 10
-      initialDelaySeconds: 600
+      initialDelaySeconds: 120
     logging:
       image: "busybox:latest"
       level: INFO
@@ -58,13 +58,13 @@ curity:
       timeoutSeconds: 1
       failureThreshold: 3
       periodSeconds: 10
-      initialDelaySeconds: 600
+      initialDelaySeconds: 120
     readinessProbe:
       timeoutSeconds: 1
       failureThreshold: 3
       successThreshold: 3
       periodSeconds: 10
-      initialDelaySeconds: 600
+      initialDelaySeconds: 120
     logging:
       image: "busybox:latest"
       level: INFO
