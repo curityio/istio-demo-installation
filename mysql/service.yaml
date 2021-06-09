@@ -36,7 +36,11 @@ spec:
     spec:
       containers:
         - name: mysql
-          image: custom_mysql:8.0.22
+          image: mysql:8.0.22
+          volumeMounts:
+          - mountPath: /docker-entrypoint-initdb.d
+            name: init-script
+            readOnly: true
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: Password1
@@ -45,3 +49,7 @@ spec:
           ports:
             - containerPort: 3306
               name: mysql
+      volumes:
+        - name: init-script
+          configMap:
+            name: init-script-configmap

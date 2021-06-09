@@ -26,7 +26,7 @@ metadata:
   name: curity-idsvr-service-account
   labels:
     app.kubernetes.io/name: idsvr
-    helm.sh/chart: idsvr-0.9.19
+    helm.sh/chart: idsvr-0.9.22
     app.kubernetes.io/instance: curity
     app.kubernetes.io/managed-by: Helm
 ---
@@ -46,7 +46,7 @@ metadata:
   name: curity-idsvr-cluster-conf-map
   labels:
     app.kubernetes.io/name: idsvr
-    helm.sh/chart: idsvr-0.9.19
+    helm.sh/chart: idsvr-0.9.22
     app.kubernetes.io/instance: curity
     app.kubernetes.io/managed-by: Helm
 data:
@@ -79,7 +79,7 @@ metadata:
   name: curity-idsvr-create-secret
   labels:
     app.kubernetes.io/name: idsvr
-    helm.sh/chart: idsvr-0.9.19
+    helm.sh/chart: idsvr-0.9.22
     app.kubernetes.io/instance: curity
     app.kubernetes.io/managed-by: Helm
 rules:
@@ -97,7 +97,7 @@ metadata:
   name: curity-idsvr-role-binding
   labels:
     app.kubernetes.io/name: idsvr
-    helm.sh/chart: idsvr-0.9.19
+    helm.sh/chart: idsvr-0.9.22
     app.kubernetes.io/instance: curity
     app.kubernetes.io/managed-by: Helm
 roleRef:
@@ -115,7 +115,7 @@ metadata:
   name: curity-idsvr-admin-svc
   labels:
     app.kubernetes.io/name: idsvr
-    helm.sh/chart: idsvr-0.9.19
+    helm.sh/chart: idsvr-0.9.22
     app.kubernetes.io/instance: curity
     app.kubernetes.io/managed-by: Helm
 spec:
@@ -148,7 +148,7 @@ metadata:
   name: curity-idsvr-runtime-svc
   labels:
     app.kubernetes.io/name: idsvr
-    helm.sh/chart: idsvr-0.9.19
+    helm.sh/chart: idsvr-0.9.22
     app.kubernetes.io/instance: curity
     app.kubernetes.io/managed-by: Helm
 spec:
@@ -169,6 +169,7 @@ spec:
   selector:
     app.kubernetes.io/name: idsvr
     app.kubernetes.io/instance: curity
+    role: curity-idsvr-runtime
 ---
 # Source: idsvr/templates/deployment-admin.yaml
 apiVersion: apps/v1
@@ -177,7 +178,7 @@ metadata:
   name: curity-idsvr-admin
   labels:
     app.kubernetes.io/name: idsvr
-    helm.sh/chart: idsvr-0.9.19
+    helm.sh/chart: idsvr-0.9.22
     app.kubernetes.io/instance: curity
     app.kubernetes.io/managed-by: Helm
     role: curity-idsvr-admin
@@ -191,7 +192,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: idsvr
-        helm.sh/chart: idsvr-0.9.19
+        helm.sh/chart: idsvr-0.9.22
         app.kubernetes.io/instance: curity
         app.kubernetes.io/managed-by: Helm
         role: curity-idsvr-admin
@@ -203,7 +204,7 @@ spec:
     spec:
       containers:
         - name: idsvr-admin
-          image: "custom_idsvr:6.1.0"
+          image: "custom_idsvr:6.2.2"
           imagePullPolicy: Never
           command: ["/opt/idsvr/bin/idsvr"]
           args: ["-s", "admin", "-N", "idsvr-admin", "--admin"]
@@ -274,7 +275,7 @@ metadata:
   name: curity-idsvr-runtime
   labels:
     app.kubernetes.io/name: idsvr
-    helm.sh/chart: idsvr-0.9.19
+    helm.sh/chart: idsvr-0.9.22
     app.kubernetes.io/instance: curity
     app.kubernetes.io/managed-by: Helm
     role: curity-idsvr-runtime
@@ -284,11 +285,12 @@ spec:
     matchLabels:
       app.kubernetes.io/name: idsvr
       app.kubernetes.io/instance: curity
+      role: curity-idsvr-runtime
   template:
     metadata:
       labels:
         app.kubernetes.io/name: idsvr
-        helm.sh/chart: idsvr-0.9.19
+        helm.sh/chart: idsvr-0.9.22
         app.kubernetes.io/instance: curity
         app.kubernetes.io/managed-by: Helm
         role: curity-idsvr-runtime
@@ -300,7 +302,7 @@ spec:
     spec:
       containers:
         - name: idsvr-runtime
-          image: "custom_idsvr:6.1.0"
+          image: "custom_idsvr:6.2.2"
           imagePullPolicy: Never
           command: ["/opt/idsvr/bin/idsvr"]
           args: ["-s", "default", "--no-admin"]
@@ -364,7 +366,7 @@ metadata:
   name: curity-idsvr-1-cluster-conf-job
   labels:
     app.kubernetes.io/name: idsvr
-    helm.sh/chart: idsvr-0.9.19
+    helm.sh/chart: idsvr-0.9.22
     app.kubernetes.io/instance: curity
     app.kubernetes.io/managed-by: Helm
 spec:
@@ -373,7 +375,7 @@ spec:
     spec:
       containers:
         - name: curity-idsvr-cluster-conf-job
-          image: "custom_idsvr:6.1.0"
+          image: "custom_idsvr:6.2.2"
           command: ["sh", "/opt/idsvr/bin/createConfigSecret.sh"]
           env:
             - name: CONFIG_SERVICE_HOST

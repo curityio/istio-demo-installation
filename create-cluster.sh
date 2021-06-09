@@ -8,7 +8,7 @@
 # Create or start the cluster
 # https://istio.io/latest/docs/setup/platform-setup/minikube
 #
-minikube start --cpus=4 --memory=16384 --disk-size=100g --kubernetes-version=v1.21.0 --profile example
+minikube start --cpus=4 --memory=16384 --disk-size=100g --profile example
 
 #
 # Download Istio to the Macbook
@@ -18,11 +18,11 @@ cd ~
 curl -L https://istio.io/downloadIstio | sh -
 
 #
-# Install Istio to the cluster, referencing the file at ~/istio-1.9.3/manifests/profiles/demo.yaml
+# Install Istio to the cluster, referencing the file at ~/istio-1.10.0/manifests/profiles/demo.yaml
 # The demo profile has good defaults when getting started, though other options are also available:
 # - https://istio.io/latest/docs/setup/additional-setup/config-profiles
 #
-~/istio-1.9.3/bin/istioctl install --set profile=demo -y
+~/istio-1.10.0/bin/istioctl install --set profile=demo -y
 
 #
 # Automatically add an 'istio-proxy' sidecar component to all Kubernetes services

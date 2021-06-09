@@ -10,14 +10,17 @@ Also install the [yq tool](https://github.com/mikefarah/yq), used to automate so
 
 - brew update
 - brew install minikube
-- brew install helm
 - minikube config set driver hyperkit
+- brew install helm
 - brew install yq
+
+Also copy a license file into the idsvr folder, to prevent startup errors.
 
 ## Cluster Base Setup
 
-Run this script, and also read it to understand the setup:
+Run these scripts to create some self signed ingress certificates and to spin up the cluster:
 
+- ./create-certs.sh
 - ./create-cluster.sh
 
 Then view some overview details of the Istio system:
@@ -25,7 +28,7 @@ Then view some overview details of the Istio system:
 - kubectl get all -n istio-system
 - kubectl -n istio-system describe service istio-ingressgateway
 
-Then add `~/istio-1.9.3/bin` to your PATH environment variable in ~/.zprofile and restart the terminal.
+Then add `~/istio-1.10.0/bin` to your PATH environment variable in ~/.zprofile and restart the terminal.
 
 ## URL Setup
 
@@ -33,7 +36,7 @@ Run this command in a separate terminal, which provides an external IP address n
 
  - minikube tunnel --profile example
 
-Then run this command and get the value of the EXTERNAL-IP field:
+Then run this command and read the value of the EXTERNAL-IP field:
 
 - kubectl get svc istio-ingressgateway -n istio-system
 
@@ -49,7 +52,7 @@ This ensures that the wildcard certificate for the above domain names is trusted
 
 ## Deploy a Minimal Web Component
 
-To understand the basics of how Kubernetes and Istio work, run this script and see its resources:
+To understand the basics of how Kubernetes and Istio work, run this script and read the YAML files referenced:
 
 - ./deploy-webhost.sh
 
@@ -111,10 +114,17 @@ Then run the HAAPI Web Sample and login using these credentials and the Safari b
 
 ## Connect to the Identity Server Inside the Cluster
 
-Start a shell to an Istio POD and test connectivity to the Curity Identity Server.\
-This is how customer APIs and web back ends will make connections:
+Start a shell to an Istio POD:
 
-- POD=$(kubectl get pods -o name | grep webhost)
-- kubectl exec -it $POD -- sh
-- curl -u 'admin:Password1' 'http://curity-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
-- curl 'http://curity-idsvr-runtime-svc:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
+```bash
+POD=$(kubectl get pods -o name | grep webhost)
+kubectl exec -it $POD -- sh
+```
+
+Then test connectivity to the Curity Identity Server.\
+The idea is to verify that customer APIs and other components using Istio sidecars could connect successfully.
+
+```bash
+curl -u 'admin:Password1' 'http://curity-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
+curl 'http://curity-idsvr-runtime-svc:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
+```

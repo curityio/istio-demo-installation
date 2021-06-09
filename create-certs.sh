@@ -4,9 +4,7 @@
 # A script to use OpenSSL to create self signed certificates for ingress to the cluster
 #######################################################################################
 
-#
-# Fail on first error
-#
+cd certs
 set -e
 
 #
@@ -87,16 +85,5 @@ openssl x509 -req \
 			-out $SSL_CERT_FILE_PREFIX.pem \
 			-sha256 \
 			-days 365 \
-			-extfile extended/server.ext
+			-extfile server.ext
 echo '*** Successfully created SSL certificate'
-
-#
-# Export it to a deployable PKCS#12 file that is password protected
-#
-openssl pkcs12 \
-			-export -inkey $SSL_CERT_FILE_PREFIX.key \
-			-in $SSL_CERT_FILE_PREFIX.pem \
-			-name $WILDCARD_DOMAIN_NAME \
-			-out $SSL_CERT_FILE_PREFIX.p12 \
-			-passout pass:$SSL_CERT_PASSWORD
-echo '*** Successfully exported SSL certificate to a PKCS#12 file'

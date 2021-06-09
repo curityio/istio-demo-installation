@@ -23,17 +23,13 @@ fi
 kubectl delete -f mysql/service.yaml 2>/dev/null
 
 #
-# Build a custom docker image containing backed up data
+# Copy in the init script to restore data, which includes our test user account
 #
-docker build -f mysql/Dockerfile -t custom_mysql:8.0.22 .
-if [ $? -ne 0 ];
-then
-  echo "Problem encountered building the custom MySql docker image"
-  exit 1
-fi
+kubectl delete configmap init-script-configmap 2>/dev/null
+kubectl create configmap init-script-configmap --from-file='./mysql/idsvr-data-backup.sql'
 
 #
-# Set whether to ise an Istio sidecar for MySql via the annotation in mysql/service.yaml
+# TODO: Set whether to use an Istio sidecar for MySql via the annotation in mysql/service.yaml
 #
 
 #

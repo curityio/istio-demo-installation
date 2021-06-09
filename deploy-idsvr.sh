@@ -18,7 +18,7 @@ fi
 #
 # Build a custom docker image with a mysql driver and some development tools
 #
-docker build -f idsvr/Dockerfile -t custom_idsvr:6.1.0 .
+docker build -f idsvr/Dockerfile -t custom_idsvr:6.2.2 .
 if [ $? -ne 0 ];
 then
   echo "Problem encountered building the Identity Server custom docker image"
