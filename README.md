@@ -1,7 +1,6 @@
 ## Overview
 
-A small repo for running an End to End Solution on a MacBook with Istio and the Curity Identity Server.\
-This is meant to provide a more `Real World Developer Setup` that also educates the user.
+A small repo for running an End to End Solution on a MacBook to evaluate Istio and the Curity Identity Server.
 
 ## Prerequisites
 
@@ -14,7 +13,7 @@ Also install the [yq tool](https://github.com/mikefarah/yq), used to automate so
 - brew install helm
 - brew install yq
 
-Also copy a license file into the idsvr folder, to prevent startup errors.
+Also copy a license file into the idsvr folder, which will be expected later.
 
 ## Cluster Base Setup
 
