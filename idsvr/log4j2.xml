@@ -79,20 +79,20 @@
 
         <JDBC name="audit-db" tableName="audit">
             <ConnectionFactory class="se.curity.identityserver.logging.AuditDatabaseConnectionFactory" method="getDatabaseConnection" />
-            <Column name="id" pattern="%structured_data_id" />
-            <Column name="event_type" pattern="%structured_data_type" />
-            <Column name="message" pattern="%structured_data_message" />
-            <Column name="instant" isEventTimestamp="true" />
-            <Column name="event_instant" pattern="%K{instant}" />
-            <Column name="server" pattern="%K{server}" />
-            <Column name="subject" pattern="%K{subject}" />
-            <Column name="client" pattern="%K{client}" />
-            <Column name="resource" pattern="%K{resource}" />
-            <Column name="authenticated_subject" pattern="%K{authenticatedSubject}" />
-            <Column name="authenticated_client" pattern="%K{authenticatedClient}" />
-            <Column name="acr" pattern="%K{acr}" />
-            <Column name="endpoint" pattern="%K{endpoint}" />
-            <Column name="session" pattern="%K{session}" />
+            <Column name="id" pattern="%structured_data_id" isUnicode="false" />
+            <Column name="event_type" pattern="%structured_data_type" isUnicode="false" />
+            <Column name="message" pattern="%structured_data_message" isUnicode="false" />
+            <Column name="instant" isEventTimestamp="true" isUnicode="false" />
+            <Column name="event_instant" pattern="%K{instant}" isUnicode="false" />
+            <Column name="server" pattern="%K{server}" isUnicode="false" />
+            <Column name="subject" pattern="%K{subject}" isUnicode="false" />
+            <Column name="client" pattern="%K{client}" isUnicode="false" />
+            <Column name="resource" pattern="%K{resource}" isUnicode="false" />
+            <Column name="authenticated_subject" pattern="%K{authenticatedSubject}" isUnicode="false" />
+            <Column name="authenticated_client" pattern="%K{authenticatedClient}" isUnicode="false" />
+            <Column name="acr" pattern="%K{acr}" isUnicode="false" />
+            <Column name="endpoint" pattern="%K{endpoint}" isUnicode="false" />
+            <Column name="session" pattern="%K{session}" isUnicode="false" />
         </JDBC>
 
         <RollingFile name="alarms-log" fileName="${env:IDSVR_HOME}/var/log/alarms.log"

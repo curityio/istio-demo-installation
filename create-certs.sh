@@ -1,23 +1,26 @@
 #!/bin/bash
 
-#######################################################################################
-# A script to use OpenSSL to create self signed certificates for ingress to the cluster
-#######################################################################################
+######################################################################
+# A script to create some self signed certificates for the demo system
+######################################################################
 
+#
+# Ensure that we are in the folder containing this script
+#
+cd "$(dirname "${BASH_SOURCE[0]}")"
+mkdir -p certs
 cd certs
 set -e
 
 #
-# Point to the OpenSsl configuration file for the platform
+# Point to the OpenSSL configuration file for macOS or Windows
 #
 case "$(uname -s)" in
 
-  # Mac OS
   Darwin)
     export OPENSSL_CONF='/System/Library/OpenSSL/openssl.cnf'
  	;;
 
-  # Windows with Git Bash
   MINGW64*)
     export OPENSSL_CONF='C:/Program Files/Git/usr/ssl/openssl.cnf';
     export MSYS_NO_PATHCONV=1;
@@ -25,20 +28,16 @@ case "$(uname -s)" in
 esac
 
 #
-# Root certificate parameters
+# Certificate properties
 #
-ROOT_CERT_FILE_PREFIX='example.com.ca'
-ROOT_CERT_DESCRIPTION='Self Signed CA for example.com'
-
-#
-# SSL certificate parameters
-#
-SSL_CERT_FILE_PREFIX='example.com.ssl'
+ROOT_CERT_FILE_PREFIX='curity.local.ca'
+ROOT_CERT_DESCRIPTION='Self Signed CA for curity.local'
+SSL_CERT_FILE_PREFIX='curity.local.ssl'
 SSL_CERT_PASSWORD='Password1'
-WILDCARD_DOMAIN_NAME='*.example.com'
+WILDCARD_DOMAIN_NAME='*.curity.local'
 
 #
-# Create the root certificate public + private key protected by a passphrase
+# Create the root certificate public + private key
 #
 openssl genrsa -out $ROOT_CERT_FILE_PREFIX.key 2048
 echo '*** Successfully created Root CA key'
@@ -84,6 +83,6 @@ openssl x509 -req \
 			-CAcreateserial \
 			-out $SSL_CERT_FILE_PREFIX.pem \
 			-sha256 \
-			-days 365 \
-			-extfile server.ext
+			-days 36 \
+      -extfile server.ext
 echo '*** Successfully created SSL certificate'

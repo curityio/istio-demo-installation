@@ -1,3 +1,5 @@
 .DS_Store
+resources
+certs/curity.*
 idsvr/license.json
-certs/example.*
+idsvr-helm.yaml

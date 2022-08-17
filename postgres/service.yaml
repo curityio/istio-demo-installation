@@ -1,54 +1,55 @@
 #
-# A basic Kubernetes deployment file for MySql that avoids persistent storage for simplicity
+# A basic Kubernetes deployment file for PostgreSQL that avoids persistent storage for simplicity
+# For demo purposes we also expose the service via port 30432
 #
 
 kind: Service
 apiVersion: v1
 metadata:
-  name: mysql-svc
+  name: postgres-svc
 spec:
   type: NodePort
   selector:
-    app: mysql
+    app: postgres
   ports:
     - protocol: "TCP"
-      port: 3306
-      nodePort: 30306
-      targetPort: 3306
+      port: 5432
+      targetPort: 5432
+      nodePort: 30432
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql
+  name: postgres
   labels:
-    app: mysql
+    app: postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mysql
+      app: postgres
   template:
     metadata:
       labels:
-        app: mysql
-      annotations:
-        sidecar.istio.io/inject: "false"
+        app: postgres
     spec:
       containers:
-        - name: mysql
-          image: mysql:8.0.22
+        - name: postgres
+          image: postgres:14.3
           volumeMounts:
           - mountPath: /docker-entrypoint-initdb.d
             name: init-script
             readOnly: true
           env:
-            - name: MYSQL_ROOT_PASSWORD
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
               value: Password1
-            - name: MYSQL_DATABASE
+            - name: POSTGRES_DB
               value: idsvr
           ports:
-            - containerPort: 3306
-              name: mysql
+            - containerPort: 5432
+              name: postgres
       volumes:
         - name: init-script
           configMap:

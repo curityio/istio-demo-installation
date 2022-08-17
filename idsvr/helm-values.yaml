@@ -2,12 +2,12 @@
 # A customised values file for the Curity Identity Server
 #
 
-replicaCount: 1
+replicaCount: 2
 
 # Point to the custom image produced by our docker file
 image:
   repository: custom_idsvr
-  tag: 6.2.2
+  tag: 7.3.1
   pullPolicy: Never
   pullSecret:
 
@@ -41,7 +41,7 @@ curity:
       image: "busybox:latest"
       level: INFO
       stdout: false
-      logs: []
+      logs:
 #        - audit
 #        - request
 #        - cluster
@@ -69,7 +69,7 @@ curity:
       image: "busybox:latest"
       level: INFO
       stdout: false
-      logs: []
+      logs:
 #        - audit
 #        - request
 #        - cluster
@@ -77,7 +77,7 @@ curity:
 #        - confsvc-internal
 #        - post-commit-scripts
 
-  # We deploy with the default configuration, then restore configuration via the restore-data script
+  # Deploy new pods with the latest backed up configuration
   config:
     uiEnabled: true
     backup: false
@@ -89,18 +89,17 @@ curity:
     configurationSecret:
     configurationSecretItemName:
 
-# This demo uses Istio for Ingress rather than the Kubernetes default
+# We will expose the Curity Identity Server using HTTPS and port 443
 ingress:
-  enabled: false
-  annotations: {}
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: istio
   runtime:
-    host: curity.local
-    secretName:
-    paths:
-      - /
+    host: login.curity.local
+    secretName: curity-local-tls
   admin:
-    host: curity-admin.local
-    secretName:
+    host: admin.curity.local
+    secretName: curity-local-tls
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

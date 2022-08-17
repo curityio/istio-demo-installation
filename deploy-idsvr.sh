@@ -1,114 +1,87 @@
 #!/bin/bash
 
-#########################################################################################################
-# Deploy the Curity Identity Server cluster to Kubernetes, with backed up configuration and Istio routing
-#########################################################################################################
+#######################################################################################
+# Deploy the Curity Identity Server cluster to Kubernetes, with backed up configuration
+#######################################################################################
 
 #
-# Point to the minikube profile
+# Ensure that we are in the folder containing this script
 #
-minikube profile example
-eval $(minikube docker-env --profile example)
-if [ $? -ne 0 ];
-then
-  echo "Minikube problem encountered - please ensure that the service is started"
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+#
+# Check prerequisites
+#
+if [ ! -f './idsvr/license.json' ]; then
+  echo 'Please provide a license.json file in the deployment/idsvr folder in order to deploy the system'
   exit 1
 fi
 
 #
-# Build a custom docker image with a mysql driver and some development tools
+# Initial setup
 #
-docker build -f idsvr/Dockerfile -t custom_idsvr:6.2.2 .
-if [ $? -ne 0 ];
-then
-  echo "Problem encountered building the Identity Server custom docker image"
+cp ./hooks/pre-commit ./.git/hooks
+
+#
+# Build a custom docker image with some extra resources
+#
+docker build -f idsvr/Dockerfile -t custom_idsvr:7.3.1 .
+if [ $? -ne 0 ]; then
+  echo 'Problem encountered building the Identity Server custom docker image'
   exit 1
 fi
 
 #
-# Uninstall the existing system if applicable
+# Load it into the KIND docker registry
 #
-kubectl delete -f idsvr/idsvr-final.yaml 2>/dev/null
+kind load docker-image custom_idsvr:7.3.1 --name curity
+if [ $? -ne 0 ]; then
+  echo 'Problem encountered loading the Identity Server custom docker image into the KIND registry'
+  exit 1
+fi
+
+#
+# Create a Kubernetes secret for our test SSL certificates, which is referenced in the Helm chart
+#
+kubectl -n curity delete secret curity-local-tls 2>/dev/null
+kubectl -n curity create secret tls curity-local-tls --cert=./certs/curity.local.ssl.pem --key=./certs/curity.local.ssl.key
+if [ $? -ne 0 ]; then
+  echo 'Problem encountered creating the Kubernetes TLS secret for the Curity Identity Server'
+  exit 1
+fi
 
 #
 # Create the config map referenced in the helm-values.yaml file
 # This deploys XML configuration to containers at /opt/idsvr/etc/init/configmap-config.xml
 # - kubectl get configmap idsvr-configmap -o yaml
 #
-kubectl delete configmap idsvr-configmap 2>/dev/null
-kubectl create configmap idsvr-configmap --from-file='./idsvr/idsvr-config-backup.xml'
-if [ $? -ne 0 ];
-then
-  echo "Problem encountered creating the config map for the Identity Server"
+kubectl -n curity delete configmap idsvr-configmap 2>/dev/null
+kubectl -n curity create configmap idsvr-configmap --from-file='./idsvr/idsvr-config-backup.xml'
+if [ $? -ne 0 ]; then
+  echo 'Problem encountered creating the config map for the Identity Server'
   exit 1
 fi
 
 #
-# Extract the raw Kubernetes yaml produced from the Helm chart and the values file
+# Run the Helm Chart
 #
-HELM_FOLDER=~/tmp/idsvr-helm
-rm -rf $HELM_FOLDER
-git clone https://github.com/curityio/idsvr-helm $HELM_FOLDER
-cp idsvr/helm-values.yaml $HELM_FOLDER/idsvr
-helm template curity $HELM_FOLDER/idsvr --values $HELM_FOLDER/idsvr/helm-values.yaml > idsvr/idsvr-helm.yaml
-if [ $? -ne 0 ];
-then
-  echo "Problem encountered creating Kubernetes YAML from the Identity Server Helm Chart"
+helm repo add curity https://curityio.github.io/idsvr-helm 1>/dev/null
+helm repo update 1>/dev/null
+helm uninstall curity --namespace curity 2>/dev/null
+helm install curity curity/idsvr --values=idsvr/helm-values.yaml --namespace curity
+if [ $? -ne 0 ]; then
+  echo 'Problem encountered running the Helm Chart for the Curity Identity Server'
   exit 1
 fi
 
 #
-# Run a child script that controls whether Identity Server pods use sidecars
-# This creates idsvr-final.yaml from idsvr-helm.yaml
-# Ensure that the same sidecar setting is used in the deploy_mysql.sh script
+# Once pods come up we can call them over these HTTPS URLs externally:
 #
-cd idsvr
-USE_ISTIO_SIDECARS="false"
-./istio-annotations.sh $USE_ISTIO_SIDECARS
-cd ..
-rm idsvr/idsvr-helm.yaml
-
+# - curl -u 'admin:Password1' 'https://admin.curity.local/admin/api/restconf/data?depth=unbounded&content=config'
+# - curl 'https://login.curity.local/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
 #
-# Force a redeploy of the system
-#
-kubectl delete -f idsvr/idsvr-final.yaml 2>/dev/null
-kubectl apply -f idsvr/idsvr-final.yaml
-if [ $? -ne 0 ];
-then
-  echo "Problem encountered applying Kubernetes YAML"
-  exit 1
-fi
-
-#
-# Expose HTTPS endpoints via an Istio gateway and virtual service
-#
-kubectl delete -f idsvr/virtualservices.yaml 2>/dev/null
-kubectl apply -f  idsvr/virtualservices.yaml
-if [ $? -ne 0 ];
-then
-  echo "Problem encountered creating Istio virtual services to expose HTTP endpoints"
-  exit 1
-fi
-
-#
-# Add destination rules so that Identity Server nodes can be reached via TLS inside the cluster
-#
-kubectl delete -f idsvr/destinationrules.yaml 2>/dev/null
-kubectl apply  -f idsvr/destinationrules.yaml
-if [ $? -ne 0 ];
-then
-  echo "Problem encountered creating Istio destination rules to allow TLS inside the cluster"
-  exit 1
-fi
-
-#
-# Once the pods come up we can call them over these URLs externally:
-#
-# - curl -u 'admin:Password1' 'https://admin.example.com/admin/api/restconf/data?depth=unbounded&content=config'
-# - curl 'https://login.example.com/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
-#
-# Inside the cluster we can use these URLs: 
+# Inside the cluster we can use these HTTP URLs:
 #
 # curl -u 'admin:Password1' 'http://curity-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
-# curl -k 'https://curity-idsvr-runtime-svc:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
+# curl -k 'http://curity-idsvr-runtime-svc:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
 #
