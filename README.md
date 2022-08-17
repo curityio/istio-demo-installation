@@ -23,6 +23,12 @@ Then edit the /etc/hosts file and add the following entries:
 127.0.0.1  admin.example.com login.example.com
 ```
 
+Also add the following root certificate to your system's certificate trust store:
+
+```text
+certs/curity.local.ca.pem
+```
+
 ## Use the System
 
 Once complete you will have a fully working system:
