@@ -35,7 +35,7 @@ Once complete you will have a fully working system:
 
 ## Understand Namespaces
 
-The Curity Identity Server is deployed to a `curity` namespace, which does not support use of sidecars or Mutual TLS.\
+The Curity Identity Server is deployed to a `curity` namespace, which does not use sidecars.\
 The Istio ingress gateway is used to expose the Curity Identity Server's admin and runtime nodes.\
 Components that use Istio sidecars and Mutual TLS should be deployed to a separate namespace.
 
