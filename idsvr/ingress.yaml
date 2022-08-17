@@ -9,16 +9,16 @@ spec:
   selector:
     istio: ingressgateway
   servers:
-  - hosts:
-    - login.curity.local
-    - admin.curity.local
-    port:
+  - port:
       number: 443
       name: https
       protocol: HTTPS
     tls:
       mode: SIMPLE
       credentialName: curity-local-tls
+    hosts:
+    - login.curity.local
+    - admin.curity.local
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -30,10 +30,7 @@ spec:
   gateways:
   - curity-idsvr-gateway
   http:
-  - match:
-    - uri:
-        prefix: /
-    route:
+  - route:
     - destination:
         host: curity-idsvr-runtime-svc
         port:
@@ -49,10 +46,7 @@ spec:
   gateways:
   - curity-idsvr-gateway
   http:
-  - match:
-    - uri:
-        prefix: /
-    route:
+  - route:
     - destination:
         host: curity-idsvr-admin-svc
         port:
@@ -63,7 +57,7 @@ kind: DestinationRule
 metadata:
   name: curity-idsvr-runtime-virtual-service
 spec:
-  host: login.curity.local
+  host: curity-idsvr-runtime-svc
   trafficPolicy:
     tls:
       mode: SIMPLE
@@ -73,7 +67,7 @@ kind: DestinationRule
 metadata:
   name: curity-idsvr-admin-virtual-service
 spec:
-  host: admin.curity.local
+  host: curity-idsvr-admin-svc
   trafficPolicy:
     tls:
       mode: SIMPLE
