@@ -89,17 +89,9 @@ curity:
     configurationSecret:
     configurationSecretItemName:
 
-# We will expose the Curity Identity Server using HTTPS and port 443
+# The Curity Identity Server is exposed over HTTPS port 443 using Istio custom resource definitions
 ingress:
-  enabled: true
-  annotations:
-    kubernetes.io/ingress.class: istio
-  runtime:
-    host: login.curity.local
-    secretName: curity-local-tls
-  admin:
-    host: admin.curity.local
-    secretName: curity-local-tls
+  enabled: false
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

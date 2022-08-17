@@ -3,6 +3,7 @@ apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
 
+  # The ingress can only run on one node so we use the control plane node
   kubeadmConfigPatches:
   - |
     kind: InitConfiguration
@@ -10,9 +11,10 @@ nodes:
       kubeletExtraArgs:
         node-labels: "ingress-ready=true"
   
+  # In development setups this enables calls to port 443 from the host computer to route directly to port 443 of the ingress
   extraPortMappings:
-  - containerPort: 80
-    hostPort: 80
+  - containerPort: 443
+    hostPort: 443
     protocol: TCP
 
 - role: worker

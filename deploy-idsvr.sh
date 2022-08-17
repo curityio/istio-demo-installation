@@ -23,7 +23,7 @@ fi
 cp ./hooks/pre-commit ./.git/hooks
 
 #
-# Build a custom docker image with some extra resources
+# Build a custom docker image containing some extra resources
 #
 docker build -f idsvr/Dockerfile -t custom_idsvr:7.3.1 .
 if [ $? -ne 0 ]; then
@@ -41,16 +41,6 @@ if [ $? -ne 0 ]; then
 fi
 
 #
-# Create a Kubernetes secret for our test SSL certificates, which is referenced in the Helm chart
-#
-kubectl -n curity delete secret curity-local-tls 2>/dev/null
-kubectl -n curity create secret tls curity-local-tls --cert=./certs/curity.local.ssl.pem --key=./certs/curity.local.ssl.key
-if [ $? -ne 0 ]; then
-  echo 'Problem encountered creating the Kubernetes TLS secret for the Curity Identity Server'
-  exit 1
-fi
-
-#
 # Create the config map referenced in the helm-values.yaml file
 # This deploys XML configuration to containers at /opt/idsvr/etc/init/configmap-config.xml
 # - kubectl get configmap idsvr-configmap -o yaml
@@ -63,7 +53,7 @@ if [ $? -ne 0 ]; then
 fi
 
 #
-# Run the Helm Chart
+# Run the Curity Identity Server Helm Chart to deploy an admin node and two runtime nodes
 #
 helm repo add curity https://curityio.github.io/idsvr-helm 1>/dev/null
 helm repo update 1>/dev/null
@@ -75,13 +65,34 @@ if [ $? -ne 0 ]; then
 fi
 
 #
+# Create a Kubernetes secret for the external SSL certificate, to apply to the Istio ingress
+# Note that the secret must be created within the istio-system namespace
+#
+kubectl -n istio-system delete secret curity-local-tls 2>/dev/null
+kubectl -n istio-system create secret tls curity-local-tls --cert=./certs/curity.local.ssl.pem --key=./certs/curity.local.ssl.key
+if [ $? -ne 0 ]; then
+  echo 'Problem encountered creating the Kubernetes TLS secret for the Curity Identity Server'
+  exit 1
+fi
+
+#
+# Expose endpoints using Istio's ingress
+#
+kubectl -n curity delete -f ./idsvr/ingress.yaml 2>/dev/null
+kubectl -n curity apply  -f ./idsvr/ingress.yaml
+if [ $? -ne 0 ]; then
+  echo 'Problem encountered creating the ingress for the Curity Identity Server'
+  exit 1
+fi
+
+#
 # Once pods come up we can call them over these HTTPS URLs externally:
 #
-# - curl -u 'admin:Password1' 'https://admin.curity.local/admin/api/restconf/data?depth=unbounded&content=config'
-# - curl 'https://login.curity.local/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
+# - curl -k -u 'admin:Password1' 'https://admin.curity.local/admin/api/restconf/data?depth=unbounded&content=config'
+# - curl -k https://login.curity.local/oauth/v2/oauth-anonymous/.well-known/openid-configuration
 #
 # Inside the cluster we can use these HTTP URLs:
 #
-# curl -u 'admin:Password1' 'http://curity-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
-# curl -k 'http://curity-idsvr-runtime-svc:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration'
+# curl -k -u 'admin:Password1' 'https://curity-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
+# curl -k https://curity-idsvr-runtime-svc:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration
 #

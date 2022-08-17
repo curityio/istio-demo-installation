@@ -46,11 +46,24 @@ if [ $? -ne 0 ]; then
   echo 'Problem encountered installing Istio'
   exit 1
 fi
+cd ../..
+
+#
+# This is specific to local computer setups and would not be run for a cloud deployment
+# It enables the host computer to send requests for port 443 to the ingress controller's container
+# This relies on port 443 being included in extraPortMappings in the cluster.yaml file
+# https://kind.sigs.k8s.io/docs/user/ingress
+#
+kubectl patch service    -n istio-system istio-ingressgateway -p '{"spec":{"type":"NodePort"}}'
+kubectl patch deployment -n istio-system istio-ingressgateway --patch-file ./cluster/istio-development-ports.json
+if [ $? -ne 0 ]; then
+  echo 'Problem encountered patching the Istio ingress controller'
+  exit 1
+fi
 
 #
 # Create the Curity namespace
 #
-cd ../..
 kubectl apply -f cluster/namespace.yaml
 if [ $? -ne 0 ]; then
   echo 'Problem encountered creating namespaces'

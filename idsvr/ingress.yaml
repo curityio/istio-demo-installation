@@ -1,0 +1,79 @@
+#
+# Create the ingress for the Curity Identity Server's exposed endpoints, using its custom resource definitions
+#
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: curity-idsvr-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - hosts:
+    - login.curity.local
+    - admin.curity.local
+    port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: curity-local-tls
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: curity-idsvr-runtime-virtual-service
+spec:
+  hosts:
+  - login.curity.local
+  gateways:
+  - curity-idsvr-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: curity-idsvr-runtime-svc
+        port:
+          number: 8443
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: curity-idsvr-admin-virtual-service
+spec:
+  hosts:
+  - admin.curity.local
+  gateways:
+  - curity-idsvr-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: curity-idsvr-admin-svc
+        port:
+          number: 6749
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: curity-idsvr-runtime-virtual-service
+spec:
+  host: login.curity.local
+  trafficPolicy:
+    tls:
+      mode: SIMPLE
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: curity-idsvr-admin-virtual-service
+spec:
+  host: admin.curity.local
+  trafficPolicy:
+    tls:
+      mode: SIMPLE
