@@ -50,4 +50,4 @@ The expectation would then be that the platform is providing Mutual TLS for this
 
 It might be worth considering an option such as `MUTUAL_TLS_VIA_PLATFORM` in the core product.\
 This might be an undocumented setting, but could prevent port 6789 from using Mutual TLS.\
-We would enable SPIFFE related behavior to be investigated further.
+It would enable SPIFFE related behavior to be investigated further.
