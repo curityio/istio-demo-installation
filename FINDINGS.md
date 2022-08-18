@@ -96,8 +96,7 @@ Being able to engage in Mutual TLS and SPIFFE would be very useful for HTTP oper
 
 Sidecars use the Envoy reverse proxy / gateway, and so does the Istio ingress and egress gateways.\
 The Envoy gateway can also runs LUA plugins, and the ingress controller itself can be used as an API gateway.\
-Envoy supports LUA plugins, so we could write a short article on how to integrate with it.\
-We might want to extend the tutorial to include an API that uses sidecars, in a different namespace.
+In future we could add resources on interaction between APIs, the Envoy gateway and the Curity Identity Server.
 
 ### Complexity
 
