@@ -33,7 +33,7 @@ It can be applied at a namespace level, with the Curity Identity Server running 
 ### Advanced Deployment
 
 Certain options such as [canary releases](https://istio.io/latest/blog/2017/0.1-canary/) of the Curity Identity Server could be easier with Istio traffic routing.\
-The [DestinationRule](https://istio.io/latest/docs/reference/config/networking/destination-rule/) CRD provides extra routing features.
+The [DestinationRule](https://istio.io/latest/docs/reference/config/networking/destination-rule/) CRD can use weighted load balancing.
 
 ### Scalability
 
