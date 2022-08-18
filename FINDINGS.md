@@ -34,8 +34,8 @@ It can be applied at a namespace level, with the Curity Identity Server running 
 
 Istio has a [RequestAuthentication](https://istio.io/latest/docs/reference/config/security/request_authentication/) resource for validating user level JWTs.\
 An argument is keeping JWTs out of applications where they could leak, but this doesn't feel very joined up.\
-It is weak in terms of API authorization based on claims, and how multiple APIs interact.
-Our zero trust argument is that user level security is best handled in the API code, and this is a complete solution.
+It is weak in terms of API authorization based on claims, and how multiple APIs interact.\
+Our more complete zero trust argument is that user level security is best handled in the API code.
 
 ### Advanced Deployment
 
