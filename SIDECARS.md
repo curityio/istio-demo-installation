@@ -1,7 +1,7 @@
 # Sidecar Integration
 
 Use of sidecars for the Curity Identity Server may not be something we want to support.\
-In particular the Curity Identity Server should manage its own Mutual TLS requests and audit requests.
+In particular the Curity Identity Server should manage its own Mutual TLS requests and audit the results.
 
 ## Enabling Sidecars for the Curity Identity Server
 
