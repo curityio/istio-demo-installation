@@ -39,8 +39,8 @@ Our more complete zero trust argument is that user level security is best handle
 
 ### Advanced Deployment
 
-Certain options such as [canary releases](https://istio.io/latest/blog/2017/0.1-canary/) of the Curity Identity Server could be easier with Istio traffic routing.
-The [DestinationRule](https://istio.io/latest/docs/reference/config/networking/destination-rule/) CRD is also relevant to this.
+Certain options such as [canary releases](https://istio.io/latest/blog/2017/0.1-canary/) of the Curity Identity Server could be easier with Istio traffic routing.\
+The [DestinationRule](https://istio.io/latest/docs/reference/config/networking/destination-rule/) CRD provides extra routing features.
 
 ### Scalability
 
