@@ -32,10 +32,8 @@ It can be applied at a namespace level, with the Curity Identity Server running 
 
 ### User Level Security
 
-Istio has a [RequestAuthentication](https://istio.io/latest/docs/reference/config/security/request_authentication/) resource for validating user level JWTs.\
 An argument is keeping JWTs out of applications where they could leak, but this doesn't feel very joined up.\
-It is weak in terms of API authorization based on claims, and how multiple APIs interact.\
-Our more complete zero trust argument is that user level security is best handled in the API code.
+More on this in the below section.
 
 ### Advanced Deployment
 
@@ -56,6 +54,36 @@ Extra logging and diagnostics at the network level is possible when routing traf
 
 There is talk of using [eBPF](https://isovalent.com/blog/post/2021-12-08-ebpf-servicemesh/) extensibility to replace the overhead of sidecars.\
 This is considered more efficient in networking terms as the number of containers scale, than the default use of iptables.
+
+## User Level Security
+
+These notes provides a brief summary of Istio and user level security:
+
+### Sidecar JWT Processing
+
+Istio has a [RequestAuthentication]([https://istio.io/latest/docs/reference/config/security/request_authentication/](https://istio.io/latest/docs/tasks/security/authentication/jwt-route/) resource for receiving user level JWTs.\
+It can be combined with an [AuthorizationPolicy](https://istio.io/latest/docs/tasks/security/authorization/authz-jwt/) to allow or deny access.
+An [outputPayloadToHeader](https://istio.io/latest/docs/reference/config/security/jwt/) can pass claims to the actual API.\
+The argument is that if JWT access tokens are provided to APIs they can leak.
+
+### Threats
+
+The above is not entirely bad, since each API would typically also use mTLS based on workload attestation.\
+It would not be easy for an attacker to pass a malicious `outputPayloadToHeader` value.\
+It does not protect against a malicious process running in the sidecar, which might be possible in some setups.
+
+### Multiple APIs
+
+Currently APIs cannot forward JWTs to each other, and there is a discussion in these links:
+
+- [Passing JWTs between microservices](https://discuss.istio.io/t/passing-authorization-headers-automatically-jwt-between-microservices/9053/8)
+- [outputClaimToHeader Proposal](https://docs.google.com/document/d/1eJ4sPt5-fbXytSwov7senndMsrq4Et6qNYQKicLGHDs/edit#)
+
+### Comparison to Zero Trust
+
+Our zero trust message is stronger, since we argue that each API should vouch for its own security.\
+APIs should actively use JWTs and be able to act as OAuth clients and perform operations such as token exchange.\
+This enables more joined up end-to-end solutions, without any blocking issues.
 
 ## Impressions
 
