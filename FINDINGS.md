@@ -78,7 +78,7 @@ Currently APIs cannot forward JWTs to each other, and there is a discussion in t
 
 Our zero trust message is stronger, since we argue that each API should vouch for its own security.\
 APIs should actively use JWTs and be able to act as OAuth clients and perform operations such as token exchange.\
-This enables more joined up end-to-end solutions, without any blocking issues.
+This is a more scalable solution, without blocking issues, and does not over-rely on the platform.
 
 ## Impressions
 
