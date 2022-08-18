@@ -57,7 +57,7 @@ These notes provides a brief summary of Istio and user level security:
 ### Sidecar JWT Processing
 
 Istio has a [RequestAuthentication](https://istio.io/latest/docs/tasks/security/authentication/jwt-route/) resource for receiving user level JWTs.\
-It can be combined with an [AuthorizationPolicy](https://istio.io/latest/docs/tasks/security/authorization/authz-jwt/) to allow or deny access.
+It can be combined with an [AuthorizationPolicy](https://istio.io/latest/docs/tasks/security/authorization/authz-jwt/) to allow or deny access.\
 An [outputPayloadToHeader](https://istio.io/latest/docs/reference/config/security/jwt/) can pass claims to the actual API.\
 The argument is that if JWT access tokens are provided to APIs they can leak.
 
