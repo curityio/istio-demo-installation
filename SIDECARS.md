@@ -26,7 +26,7 @@ spec:
 
 ## Enabling Mutual TLS for Sidecars
 
-This would be done by applying a PeerAuthentication resource for the Curity Identity Server's namespace
+This would be done by applying a PeerAuthentication resource for the Curity Identity Server's namespace:
 
 ```yaml
 apiVersion: security.istio.io/v1beta1
