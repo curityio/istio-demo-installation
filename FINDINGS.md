@@ -30,11 +30,6 @@ A [SPIFFE implementation](https://istio.io/latest/docs/ops/integrations/spire/) 
 A [PeerAuthentication](https://istio.io/latest/docs/reference/config/security/peer_authentication/) resource can be used to configure this behavior.\
 It can be applied at a namespace level, with the Curity Identity Server running in a different namespace.
 
-### User Level Security
-
-An argument is keeping JWTs out of applications where they could leak, but this doesn't feel very joined up.\
-More on this in the below section.
-
 ### Advanced Deployment
 
 Certain options such as [canary releases](https://istio.io/latest/blog/2017/0.1-canary/) of the Curity Identity Server could be easier with Istio traffic routing.\
@@ -61,7 +56,7 @@ These notes provides a brief summary of Istio and user level security:
 
 ### Sidecar JWT Processing
 
-Istio has a [RequestAuthentication]([https://istio.io/latest/docs/reference/config/security/request_authentication/](https://istio.io/latest/docs/tasks/security/authentication/jwt-route/) resource for receiving user level JWTs.\
+Istio has a [RequestAuthentication](https://istio.io/latest/docs/tasks/security/authentication/jwt-route/) resource for receiving user level JWTs.\
 It can be combined with an [AuthorizationPolicy](https://istio.io/latest/docs/tasks/security/authorization/authz-jwt/) to allow or deny access.
 An [outputPayloadToHeader](https://istio.io/latest/docs/reference/config/security/jwt/) can pass claims to the actual API.\
 The argument is that if JWT access tokens are provided to APIs they can leak.
