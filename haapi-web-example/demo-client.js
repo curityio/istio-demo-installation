@@ -98,7 +98,7 @@ function Curity(viewsElement, codeElement, callback, apiFetch) {
         components.push(...generateMessages(json));
 
         if (json.type === 'authentication-step' || json.type === 'registration-step' || json.type === 'redirection-step'
-            || json.type === 'user-consent-step' || json.type == 'consentor-step') {
+            || json.type === 'user-consent-step' || json.type === 'consentor-step') {
             components.push(...generateActions(json, autoFollowLinks));
         } else if (json.type === 'oauth-authorization-response') {
             components.push(callback(json));
@@ -293,10 +293,9 @@ function Curity(viewsElement, codeElement, callback, apiFetch) {
             body = data;
         }
         try {
-            console.log(`*** FETCH REQUEST: ${link}, ${method}, ${body}`);
             const response = await apiFetch(link, {method, body});
             const text = await response.text();
-            console.log(`** FETCH RESPONSE: ${text}`);
+            console.log(`HTTP response body: ${text}`);
 
             // status codes without a parse-able body
             if (response.status === 204

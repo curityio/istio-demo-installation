@@ -88,7 +88,7 @@
                             URL</label>
                         <input type="text" id="oauth-authorize-url" class="siimple-input siimple-input--fluid"
                                placeholder="https://oauth/authorize"
-                               value="https://login.example.com/oauth/v2/oauth-authorize?client_id=haapi-web-client&response_type=code&scope=read&state=foo&redirect_uri=https://localhost:7777/callback">
+                               value="https://localhost:8443/dev/oauth/authorize?client_id=haapi-public-client&response_type=code&scope=read&state=foo&redirect_uri=https://localhost:7777/client-callback">
                     </div>
                     <div class="siimple-form-field">
                         <div class="siimple-btn siimple-btn--primary" id="start-submit-button"
@@ -145,6 +145,7 @@ the @curity/identityserver-haapi-web-driver NPM package, either by bundling or d
     const fetchConfig = {
         clientId: config.haapiClientId,
         tokenEndpoint: config.tokenEndpoint,
+        timeout: 5, // timeout in seconds for how long fetch should wait for a response
     }
     const apiFetch = HaapiDriver.createHaapiFetch(fetchConfig);
     const curity = new Curity(viewsElement, codeElement, authorizationDone, apiFetch);
@@ -199,20 +200,22 @@ the @curity/identityserver-haapi-web-driver NPM package, either by bundling or d
         const paramsFromQueryString = new URLSearchParams(window.location.search);
         const haapiClientId = paramsFromQueryString.get('haapi_client_id') || 'haapi-web-client';
         const oauthClientId = paramsFromQueryString.get('oauth_client_id') || 'haapi-web-client';
-        const redirectUri = paramsFromQueryString.get('redirect_uri') || 'https://localhost:7777/callback';
+        const redirectUri = paramsFromQueryString.get('redirect_uri') || 'https://localhost:7777/client-callback';
 
         const params = new URLSearchParams({
             client_id: oauthClientId,
             redirect_uri: redirectUri,
             response_type: 'code',
-            scope: 'read',
-            state: 'foo'
+            scope: 'openid read',
+            state: 'c5f933dabcd74550890fc388c876567b',
+            code_challenge: 'terRch94pEu0Cp4TsvHD3s29Ut6JX6yQ2UUWSNiHkpc',
+            code_challenge_method: 'S256',
         })
 
         return {
-            authorizationRequest: `https://login.example.com/oauth/v2/oauth-authorize?${params}`,
+            authorizationRequest: `https://login.curity.local/oauth/v2/oauth-authorize?${params}`,
             haapiClientId,
-            tokenEndpoint: 'https://login.example.com/oauth/v2/oauth-token'
+            tokenEndpoint: 'https://login.curity.local/oauth/v2/oauth-token'
         }
     }
 

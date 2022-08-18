@@ -1,55 +1,71 @@
 #!/bin/bash
 
-######################################################################
-# A script to use Istio with a Minikube cluster on a Developer MacBook
-######################################################################
+####################################################################
+# Base setup for a cluster with 2 nodes hosting the application pods
+####################################################################
 
 #
-# Create or start the cluster
-# https://istio.io/latest/docs/setup/platform-setup/minikube
+# Ensure that we are in the folder containing this script
 #
-minikube start --cpus=4 --memory=16384 --disk-size=100g --profile example
+cd "$(dirname "${BASH_SOURCE[0]}")"
 
 #
-# Download Istio to the Macbook
-# https://istio.io/latest/docs/setup/getting-started
+# Create a KIND cluster
 #
-cd ~
-curl -L https://istio.io/downloadIstio | sh -
-
-#
-# Install Istio to the cluster, referencing the file at ~/istio-1.10.0/manifests/profiles/demo.yaml
-# The demo profile has good defaults when getting started, though other options are also available:
-# - https://istio.io/latest/docs/setup/additional-setup/config-profiles
-#
-~/istio-1.10.0/bin/istioctl install --set profile=demo -y
-
-#
-# Automatically add an 'istio-proxy' sidecar component to all Kubernetes services
-#
-kubectl label namespace default istio-injection=enabled
-
-#
-# Create a secret for the wildcard external SSL certificate for *.example.com
-# Note that this must be deployed to the istio-system namespace
-#
-cd -
-kubectl delete secret example-com-tls -n istio-system 2>/dev/null
-kubectl create secret tls example-com-tls --cert='./certs/example.com.ssl.pem' --key='./certs/example.com.ssl.key' -n istio-system
-if [ $? -ne 0 ]
-then
-  echo "*** Problem creating secret for external SSL certificate ***"
+kind delete cluster --name=curity 2>/dev/null
+kind create cluster --name=curity --config=./cluster/cluster.yaml
+if [ $? -ne 0 ]; then
+  echo 'Problem encountered creating the Kubernetes cluster'
   exit 1
 fi
 
 #
-# Create the gateway object to expose services over port 443
+# Create a folder for temporary resources
 #
-kubectl delete -f base/gateway.yaml 2> /dev/null
-kubectl apply  -f base/gateway.yaml
+if [ -d ./resources ]; then
+  rm -rf resources
+fi
+mkdir resources
+cd resources
 
 #
-# Free memory by stopping the profile or delete the profile permanently if you prefer
-# - minikube stop --profile example
-# - minikube delete --profile example
+# Download Istio
 #
+curl -L https://istio.io/downloadIstio | sh -
+if [ $? -ne 0 ]; then
+  echo 'Problem encountered downloading Istio'
+  exit 1
+fi
+
+#
+# Install Istio components
+#
+cd istio*
+./bin/istioctl install --set profile=demo -y
+if [ $? -ne 0 ]; then
+  echo 'Problem encountered installing Istio'
+  exit 1
+fi
+cd ../..
+
+#
+# This is specific to local computer setups and would not be run for a cloud deployment
+# It enables the host computer to send requests for port 443 to the ingress controller's container
+# This relies on port 443 being included in extraPortMappings in the cluster.yaml file
+# https://kind.sigs.k8s.io/docs/user/ingress
+#
+kubectl patch service    -n istio-system istio-ingressgateway -p '{"spec":{"type":"NodePort"}}'
+kubectl patch deployment -n istio-system istio-ingressgateway --patch-file ./cluster/istio-development-ports.json
+if [ $? -ne 0 ]; then
+  echo 'Problem encountered patching the Istio ingress controller'
+  exit 1
+fi
+
+#
+# Create the Curity namespace
+#
+kubectl apply -f cluster/namespace.yaml
+if [ $? -ne 0 ]; then
+  echo 'Problem encountered creating namespaces'
+  exit 1
+fi
