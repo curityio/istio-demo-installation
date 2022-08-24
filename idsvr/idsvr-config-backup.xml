@@ -157,7 +157,7 @@
             </scope>
             <scope>
               <id>read</id>
-              <description>A custom scope for the HAAPI web sample</description>
+              <description>A custom scope for the HAAPI web code example</description>
               <expose-in-metadata>false</expose-in-metadata>
             </scope>
           </scopes>

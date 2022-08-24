@@ -37,7 +37,7 @@ Once complete you will have a fully working system:
 - A rich [Admin UI](https://admin.curity.local/admin) for configuring applications and their security behavior
 - A SQL database from which users, tokens, sessions and audit information can be queried
 - A [SCIM 2.0 API](https://login.curity.local/user-management/admin) for managing user accounts
-- A working [End to End Code Sample](https://login.curity.local/demo-client.html)
+- A working [End to End Code Example](https://login.curity.local/demo-client.html)
 
 ## Understand Namespaces
 
