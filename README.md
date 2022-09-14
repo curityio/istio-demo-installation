@@ -3,8 +3,7 @@
 ## Prerequisites
 
 - Install [Kubernetes in Docker (KIND)](https://kind.sigs.k8s.io/docs/user/quick-start/) for a Kubernetes development setup
-
-Also download a license file for the Curity Identity Server and copy it into the `idsvr` folder.
+- Also download a license.json file for the Curity Identity Server and copy it into the `idsvr` folder
 
 ## Deploy the System
 
