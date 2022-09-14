@@ -20,7 +20,7 @@ Run these scripts to create some self signed ingress certificates and to spin up
 Then edit the /etc/hosts file and add the following entries:
 
 ```bash
-127.0.0.1  admin.example.com login.example.com
+127.0.0.1  login.curity.local admin.curity.local
 ```
 
 Also add the following root certificate to your system's certificate trust store:
