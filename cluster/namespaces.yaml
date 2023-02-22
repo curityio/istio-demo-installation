@@ -1,0 +1,9 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: curity
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: applications

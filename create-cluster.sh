@@ -60,3 +60,12 @@ if [ $? -ne 0 ]; then
   echo 'Problem encountered patching the Istio ingress controller'
   exit 1
 fi
+
+#
+# Create namespaces
+#
+kubectl apply -f cluster/namespaces.yaml
+if [ $? -ne 0 ]; then
+  echo 'Problem encountered creating Kubernetes namespaces'
+  exit 1
+fi

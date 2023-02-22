@@ -31,25 +31,19 @@ case "$(uname -s)" in
 esac
 
 #
-# External certificate details, for accesing the Curity Identity Server from outside the cluster
+# Create external certificates, for accessing the Curity Identity Server from outside the cluster
 #
-ROOT_CERT_FILE_PREFIX='curity.local.ca'
-ROOT_CERT_DESCRIPTION='Self Signed CA for curity.local'
-SSL_CERT_FILE_PREFIX='curity.local.ssl'
+ROOT_CERT_FILE_PREFIX='curity.external.ca'
+ROOT_CERT_DESCRIPTION='Development CA for curity.local'
+SSL_CERT_FILE_PREFIX='curity.external.ssl'
 SSL_CERT_PASSWORD='Password1'
 WILDCARD_DOMAIN_NAME='*.curity.local'
 
-#
-# Create the root certificate private key
-#
 openssl genrsa -out $ROOT_CERT_FILE_PREFIX.key 2048
 if [ $? -ne 0 ]; then
   exit 1
 fi
 
-#
-# Get the root certificate public key
-#
 openssl req -x509 \
             -new \
             -nodes \
@@ -64,14 +58,8 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-#
-# Create the SSL key
-#
 openssl genrsa -out $SSL_CERT_FILE_PREFIX.key 2048
 
-#
-# Create the certificate signing request file
-#
 openssl req \
             -new \
 			-key $SSL_CERT_FILE_PREFIX.key \
@@ -81,9 +69,6 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-#
-# Create the SSL certificate and private key
-#
 openssl x509 -req \
 			-in $SSL_CERT_FILE_PREFIX.csr \
 			-CA $ROOT_CERT_FILE_PREFIX.pem \

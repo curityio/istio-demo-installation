@@ -7,18 +7,22 @@ replicaCount: 2
 image:
   repository: custom_idsvr
   tag: 8.0.0
-  pullPolicy: Never
 
 curity:
-  #runtime:
-  #  podLabels:
-  #    sidecar.istio.io/inject: true
+  admin:
+    podLabels:
+      sidecar.istio.io/inject: 'true'
+
+  runtime:
+    role: default
+    podLabels:
+      sidecar.istio.io/inject: 'true'
 
   config:
     uiEnabled: true
+    skipInstall: true
     backup: false
-    skipInstall: false
-    password: Password1
+    encryptionKey: bdb95b38279b6018b2002adb438010167b6b730e3ab198c77e65df7501ca08fc
     configuration:
       - configMapRef:
          name: idsvr-configbackup
@@ -26,6 +30,6 @@ curity:
            - key: configbackup
              path: idsvr-config-backup.xml
 
-# The Curity Identity Server is exposed over HTTPS port 443 using Istio custom resource definitions
+# This example uses Istio's gateway to expose the Curity Identity Server over port 443
 ingress:
   enabled: false

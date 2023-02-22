@@ -23,11 +23,6 @@ fi
 cp ./hooks/pre-commit ./.git/hooks
 
 #
-# Create the Curity namespace if required
-#
-kubectl apply -f cluster/namespace.yaml 2>/dev/null
-
-#
 # Build a custom docker image containing some extra resources
 #
 docker build -f idsvr/Dockerfile -t custom_idsvr:8.0.0 .
@@ -73,30 +68,18 @@ fi
 # Note that the secret must be created within the istio-system namespace
 #
 kubectl -n istio-system delete secret curity-external-tls 2>/dev/null
-kubectl -n istio-system create secret tls curity-external-tls --cert=./certs/curity.local.ssl.pem --key=./certs/curity.local.ssl.key
+kubectl -n istio-system create secret tls curity-external-tls --cert=./certs/curity.external.ssl.pem --key=./certs/curity.external.ssl.key
 if [ $? -ne 0 ]; then
   echo 'Problem encountered creating the Kubernetes TLS secret for the Curity Identity Server'
   exit 1
 fi
 
 #
-# Expose endpoints using Istio's ingress
+# Deploy Istio specific custom resources for ingress and mTLS
 #
-kubectl -n curity delete -f ./idsvr/ingress.yaml 2>/dev/null
-kubectl -n curity apply  -f ./idsvr/ingress.yaml
+kubectl -n curity delete -f ./idsvr/istio-custom-resources.yaml 2>/dev/null
+kubectl -n curity apply  -f ./idsvr/istio-custom-resources.yaml
 if [ $? -ne 0 ]; then
-  echo 'Problem encountered creating the ingress for the Curity Identity Server'
+  echo 'Problem encountered creating Istio resources for the Curity Identity Server'
   exit 1
 fi
-
-#
-# Once pods come up we can call them over these HTTPS URLs externally:
-#
-# - curl -k -u 'admin:Password1' 'https://admin.curity.local/admin/api/restconf/data?depth=unbounded&content=config'
-# - curl -k https://login.curity.local/oauth/v2/oauth-anonymous/.well-known/openid-configuration
-#
-# Inside the cluster we can use these HTTP URLs:
-#
-# curl -k -u 'admin:Password1' 'https://curity-idsvr-admin-svc:6749/admin/api/restconf/data?depth=unbounded&content=config'
-# curl -k https://curity-idsvr-runtime-svc:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration
-#
