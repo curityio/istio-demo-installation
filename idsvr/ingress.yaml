@@ -15,7 +15,7 @@ spec:
       protocol: HTTPS
     tls:
       mode: SIMPLE
-      credentialName: curity-local-tls
+      credentialName: curity-external-tls
     hosts:
     - login.curity.local
     - admin.curity.local

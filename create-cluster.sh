@@ -38,7 +38,7 @@ if [ $? -ne 0 ]; then
 fi
 
 #
-# Install Istio components
+# Install Istio components to a demo level
 #
 cd istio*
 ./bin/istioctl install --set profile=demo -y
@@ -49,7 +49,7 @@ fi
 cd ../..
 
 #
-# This is specific to local computer setups and would not be run for a cloud deployment
+# This patch is specific to local computer setups and would not be run for a cloud deployment
 # It enables the host computer to send requests for port 443 to the ingress controller's container
 # This relies on port 443 being included in extraPortMappings in the cluster.yaml file
 # https://kind.sigs.k8s.io/docs/user/ingress
@@ -58,14 +58,5 @@ kubectl patch service    -n istio-system istio-ingressgateway -p '{"spec":{"type
 kubectl patch deployment -n istio-system istio-ingressgateway --patch-file ./cluster/istio-development-ports.json
 if [ $? -ne 0 ]; then
   echo 'Problem encountered patching the Istio ingress controller'
-  exit 1
-fi
-
-#
-# Create the Curity namespace
-#
-kubectl apply -f cluster/namespace.yaml
-if [ $? -ne 0 ]; then
-  echo 'Problem encountered creating namespaces'
   exit 1
 fi

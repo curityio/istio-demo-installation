@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #####################################################################################
-# Deploy a basic Postgres instance without any persistent volumes
+# Deploy a Postgres database in the simplest way, with no persistent volume claim
 # The Curity Identity Server will connect to it via this JDBC URL inside the cluster:
 # - jdbc:postgresql://postgres-svc/idsvr
 # From Curity containers inside the cluster we can connect via the following command:

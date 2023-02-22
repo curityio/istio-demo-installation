@@ -1,0 +1,9 @@
+1. Apply istio injection to only runtime nodes
+
+2. Remove SSL values from configuration
+
+3. Make some crypto updates to set environment variables in a more professional way
+   Use parameterized configuration and a new config encryption key on every deployment
+
+4. Write tutorial
+   Describe convertKS usage in the Helm chart
