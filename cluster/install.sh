@@ -4,10 +4,8 @@
 # Base setup for a cluster with 2 nodes hosting the application pods
 ####################################################################
 
-#
-# Ensure that we are in the folder containing this script
-#
 cd "$(dirname "${BASH_SOURCE[0]}")"
+cd ..
 
 #
 # Create a KIND cluster

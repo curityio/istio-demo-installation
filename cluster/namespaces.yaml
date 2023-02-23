@@ -1,7 +1,12 @@
 #
+# The Curity namespace uses sidecars and mTLS in a partial way
 # The applications namespace uses sidecars and mTLS for all pods
-# The Curity namespace uses these features in a more restrictive way
 #
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: curity
+---
 kind: Namespace
 apiVersion: v1
 metadata:
@@ -16,8 +21,3 @@ metadata:
 spec:
   mtls:
     mode: STRICT
----
-kind: Namespace
-apiVersion: v1
-metadata:
-  name: curity

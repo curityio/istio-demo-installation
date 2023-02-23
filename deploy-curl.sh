@@ -1,8 +1,8 @@
 #!/bin/bash
 
-###########################################################################################
-# Deploy a minimal pod in the applications namespace from which we can issue a curl request
-###########################################################################################
+################################################################################################
+# Deploy a minimal pod using sidecars and mTLS from which we can call the Curity Identity Server
+################################################################################################
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 kubectl -n applications run curlclient --image=curlimages/curl -it -- sh

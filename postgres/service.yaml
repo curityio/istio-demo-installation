@@ -1,6 +1,5 @@
 #
 # A basic Kubernetes deployment file for PostgreSQL that avoids persistent storage for simplicity
-# For demo purposes we also expose the service via port 30432
 #
 
 kind: Service
@@ -15,7 +14,6 @@ spec:
     - protocol: "TCP"
       port: 5432
       targetPort: 5432
-      nodePort: 30432
 ---
 apiVersion: apps/v1
 kind: Deployment

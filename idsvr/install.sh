@@ -4,10 +4,13 @@
 # Deploy the Curity Identity Server cluster to Kubernetes, with backed up configuration
 #######################################################################################
 
-#
-# Ensure that we are in the folder containing this script
-#
 cd "$(dirname "${BASH_SOURCE[0]}")"
+cd ..
+
+#
+# Prevent checkins of secrets
+#
+cp ./hooks/pre-commit ./.git/hooks
 
 #
 # Check prerequisites
@@ -17,10 +20,6 @@ if [ ! -f './idsvr/license.json' ]; then
   exit 1
 fi
 
-#
-# Initial setup
-#
-cp ./hooks/pre-commit ./.git/hooks
 
 #
 # Build a custom docker image containing some extra resources

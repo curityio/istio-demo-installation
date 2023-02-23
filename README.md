@@ -7,13 +7,11 @@
 
 ## Deploy the System
 
-Run these scripts in sequence to deploy the cluster and its components:
+Run these scripts to create the cluster and deploy components:
 
 ```bash
-./create-cluster.sh
 ./create-external-certs.sh
-./deploy-postgres.sh
-./deploy-idsvr.sh
+./install.sh
 ```
 
 Then edit the /etc/hosts file and add the following entries:
@@ -28,10 +26,16 @@ Also add the following root certificate to your system's certificate trust store
 certs/curity.external.ca.pem
 ```
 
+When you are finished testing, tear down the cluster with this command:
+
+```bash
+./uninstall.sh
+```
+
 ## Run a Demo Application
 
 The deployment includes a simple web client, using the hypermedia authentication API.\
-Run it using the following details:
+Run it using the following parameters:
 
 - URL: https://login.curity.local/demo-client.html
 - User: john.doe
@@ -39,23 +43,17 @@ Run it using the following details:
 
 ## Diagnose mTLS Requests
 
-Run a utility pod that runs in an applications namespace that uses sidecars and mTLS:
+Get a shell to a utility pod that uses sidecars and mTLS and runs in an `applications` namespace:
 
 ```bash
 ./deploy-curl.sh
 ```
 
-Open a terminal window, then run this command to eavesdrop traffic sent from the curl client pod:
+On the host, open a terminal window, then run this command to eavesdrop traffic sent from the curl client pod:
 
 ```bash
 kubectl -n applications exec curlclient -c istio-proxy \
 -- sudo tcpdump -l --immediate-mode -vv -s 0
-```
-
-Then open a terminal in a client pod:
-
-```bash
-kubectl -n applications exec -it curlclient -- bash
 ```
 
 Then call the Curity Identity Server, with a plain HTTP request:
