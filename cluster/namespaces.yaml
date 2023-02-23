@@ -1,9 +1,23 @@
-kind: Namespace
-apiVersion: v1
-metadata:
-  name: curity
----
+#
+# The applications namespace uses sidecars and mTLS for all pods
+# The Curity namespace uses these features in a more restrictive way
+#
 kind: Namespace
 apiVersion: v1
 metadata:
   name: applications
+  labels:
+    istio-injection: enabled
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: applications
+spec:
+  mtls:
+    mode: STRICT
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: curity

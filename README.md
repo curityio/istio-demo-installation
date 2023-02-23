@@ -14,7 +14,6 @@ Run these scripts in sequence to deploy the cluster and its components:
 ./create-external-certs.sh
 ./deploy-postgres.sh
 ./deploy-idsvr.sh
-./deploy-httpbin.sh
 ```
 
 Then edit the /etc/hosts file and add the following entries:
@@ -38,21 +37,25 @@ Run it using the following details:
 - User: john.doe
 - Password: Password1
 
-## Understand mTLS Requests
+## Diagnose mTLS Requests
 
-Open a terminal window, then run this command to eavesdrop traffic sent from the httpbin client pod:
+Run a utility pod that runs in an applications namespace that uses sidecars and mTLS:
 
 ```bash
-HTTPBIN_CONTAINER_ID="$(kubectl -n applications get pod -o name)"
-kubectl -n applications exec $HTTPBIN_CONTAINER_ID -c istio-proxy \
+./deploy-curl.sh
+```
+
+Open a terminal window, then run this command to eavesdrop traffic sent from the curl client pod:
+
+```bash
+kubectl -n applications exec curlclient -c istio-proxy \
 -- sudo tcpdump -l --immediate-mode -vv -s 0
 ```
 
 Then open a terminal in a client pod:
 
 ```bash
-kubectl -n applications describe $HTTPBIN_CONTAINER_ID
-kubectl -n applications exec -it $HTTPBIN_CONTAINER_ID -- bash
+kubectl -n applications exec -it curlclient -- bash
 ```
 
 Then call the Curity Identity Server, with a plain HTTP request:
@@ -65,7 +68,7 @@ If plain HTTP was used, the tcpdump would show cleartext, but the request actual
 Run the following command to see how the proxy communicates with the target URL:
 
 ```bash
-kubectl -n applications exec $HTTPBIN_CONTAINER_ID -c istio-proxy \
+kubectl -n applications exec curlclient -c istio-proxy \
      -- openssl s_client -showcerts \
      -connect curity-idsvr-runtime-svc.curity:8443 \
      -CAfile /var/run/secrets/istio/root-cert.pem | \
