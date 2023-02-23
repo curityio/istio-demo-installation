@@ -14,7 +14,6 @@ curity:
       sidecar.istio.io/inject: 'true'
 
   runtime:
-    role: default
     podLabels:
       sidecar.istio.io/inject: 'true'
 
