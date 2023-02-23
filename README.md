@@ -29,10 +29,57 @@ Also add the following root certificate to your system's certificate trust store
 certs/curity.external.ca.pem
 ```
 
-## Use the System
+## Run a Demo Application
 
-TODO
+The deployment includes a simple web client, using the hypermedia authentication API.\
+Run it using the following details:
+
+- URL: https://login.curity.local/demo-client.html
+- User: john.doe
+- Password: Password1
+
+## Understand mTLS Requests
+
+Open a terminal window, then run this command to eavesdrop traffic sent from the httpbin client pod:
+
+```bash
+HTTPBIN_CONTAINER_ID="$(kubectl -n applications get pod -o name)"
+kubectl -n applications exec $HTTPBIN_CONTAINER_ID -c istio-proxy \
+-- sudo tcpdump -l --immediate-mode -vv -s 0
+```
+
+Then open a terminal in a client pod:
+
+```bash
+kubectl -n applications describe $HTTPBIN_CONTAINER_ID
+kubectl -n applications exec -it $HTTPBIN_CONTAINER_ID -- bash
+```
+
+Then call the Curity Identity Server, with a plain HTTP request:
+
+```bash
+curl http://curity-idsvr-runtime-svc.curity:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration
+```
+
+If plain HTTP was used, the tcpdump would show cleartext, but the request actually uses SSL and mTLS.\
+Run the following command to see how the proxy communicates with the target URL:
+
+```bash
+kubectl -n applications exec $HTTPBIN_CONTAINER_ID -c istio-proxy \
+     -- openssl s_client -showcerts \
+     -connect curity-idsvr-runtime-svc.curity:8443 \
+     -CAfile /var/run/secrets/istio/root-cert.pem | \
+     openssl x509 -in /dev/stdin -text -noout
+```
+
+The response shows how the connection uses SPIFFE mTLS certificate details:
+
+```text
+ X509v3 Subject Alternative Name: critical
+  URI:spiffe://cluster.local/ns/curity/sa/default
+```
 
 ## More Information
 
-Please visit [curity.io](https://curity.io/) for more information about the Curity Identity Server.
+- See the [Istio Tutorial](https://curity.io/resources/learn/istio-demo-installation) on the Curity website for further details about this deployment.
+- Please visit [curity.io](https://curity.io/) for more information about the Curity Identity Server.

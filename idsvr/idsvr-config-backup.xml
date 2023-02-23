@@ -313,6 +313,36 @@
           </openid-connect>
           <client-store>
             <config-backed>
+              <client>
+                <id>haapi-web-client</id>
+                <client-name>haapi-web-client</client-name>
+                <no-authentication>true</no-authentication>
+                <redirect-uris>https://localhost:7777/client-callback</redirect-uris>
+                <proof-key>
+                  <require-proof-key>false</require-proof-key>
+                </proof-key>
+                <refresh-token-ttl>disabled</refresh-token-ttl>
+                <scope>openid</scope>
+                <scope>read</scope>
+                <user-authentication>
+                  <allowed-authenticators>UsernamePassword</allowed-authenticators>
+                </user-authentication>
+                <allowed-origins>https://login.curity.local</allowed-origins>
+                <capabilities>
+                  <code/>
+                  <haapi/>
+                </capabilities>
+                <use-pairwise-subject-identifiers>
+                  <sector-identifier>haapi-web-client</sector-identifier>
+                </use-pairwise-subject-identifiers>
+                <validate-port-on-loopback-interfaces>true</validate-port-on-loopback-interfaces>
+                <attestation>
+                  <disable-attestation-validation>true</disable-attestation-validation>
+                  <web>
+                    <web-policy>web-policy</web-policy>
+                  </web>
+                </attestation>
+              </client>
             </config-backed>
           </client-store>
         </authorization-server>
