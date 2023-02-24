@@ -2,19 +2,26 @@
 
 ## Prerequisites
 
-- Install [Kubernetes in Docker (KIND)](https://kind.sigs.k8s.io/docs/user/quick-start/) for a Kubernetes development setup
-- Also download a license.json file for the Curity Identity Server and copy it into the `idsvr` folder
+- Install [Kubernetes in Docker (KIND)](https://kind.sigs.k8s.io/docs/user/quick-start/) for a development setup
+- Install the [jq](https://stedolan.github.io/jq/download/) tool
+- Install the [envsubst](https://github.com/a8m/envsubst) tool
 
 ## Deploy the System
 
-Run these scripts to create the cluster and deploy components:
+First create cryptographic keys and external SSL certificates:
 
 ```bash
-./create-external-certs.sh
+./crypto.sh
+```
+
+Next run the installation, supplying the path to a license file for the Curity Identity Server:
+
+```bash
+export CURITY_LICENSE_FILE_PATH=~/Desktop/license.json
 ./install.sh
 ```
 
-Then edit the /etc/hosts file and add the following entries:
+Then edit the `/etc/hosts` file and add the following entries:
 
 ```bash
 127.0.0.1  login.curity.local admin.curity.local

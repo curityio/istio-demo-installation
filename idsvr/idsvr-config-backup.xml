@@ -15,7 +15,7 @@
       <services>
         <zones>
           <default-zone>
-            <symmetric-key>53379af51b06a410159ecde0a90a99631439832bef9ff7a8b840ab336f522aa5</symmetric-key>
+            <symmetric-key>#{SYMMETRIC_KEY}</symmetric-key>
           </default-zone>
         </zones>
         <service-role>
@@ -428,9 +428,9 @@
       <data-source>
         <id>default-datasource</id>
         <jdbc xmlns="https://curity.se/ns/ext-conf/jdbc">
-          <connection-string>jdbc:postgresql://postgres-svc/idsvr</connection-string>
+          <connection-string>#{DB_CONNECTION}</connection-string>
           <driver>org.postgresql.Driver</driver>
-          <password>Password1</password>
+          <password>#{DB_PASSWORD}</password>
           <use-for-audit>true</use-for-audit>
           <username>postgres</username>
         </jdbc>
@@ -442,7 +442,7 @@
       <signing-keys>
         <signing-key>
           <id>default-signing-key</id>
-          <keystore>data:application/p12;aes,v:S.WkdqaTRpWVcyTlN5U3BKcg==.ybUmZ652vx-c6FC8RXnQ3g==.PbgCwFVuue8h566HceQqkiEZ_X53WFRE7tKb4H0bOxOe2oT5qjqLedYPuQsgU8PkcyuUsL-fXhQ7gt8Y_kO-mTacBFoMxFjZXfpnXkbtuE4YdBu2Ye0ehVoIgJtubCDFOfLaPzMCrTgVrGQ2wRa6mVA3LPexL7tw5yj3u8UDhqrBjI0zoPzXU1Og7S8Cbw53EQEfRnbkAC2fUKqXep6gg4YGp3UmEJfqis36DqP9usgJUwLwESTs0DE55L0vGA6b45YC9e9M3r0sZnLHVrYS9YtSlhJ4qCcmGjnhY-SMrdxdDSWirNz9JBt7haLyX8kHlJvNA1EaYvKQa5-ZR8ihocapWFoAcdaCcWpBijphSlOxBh22pjbf_3Guj-YDt0iqVxgzsvQVtH2NLWTPrs6OBXowsVEXjPAWzgL4GLzS7dJegVlVhbLfMru1on42GyJAqespsJju4gAajX8ypTEjT30K41pbbl8m4MN8cxdBjQqkXYY5FLMB3YtF6K5crVZ-eBKZDDLuA2uPEVYCfkVnXrRpBqsdepVO5No9Kwbya4ax6u-9MZZ7bqtFbhDGVoDNPgK9mea-goY4Omwh1d6JN_LTb4SZ_oIVpJIDySkA6loQG5c047h_3ZNWBu3zSRpQwQebgcP6xnkAMaEfjr3VVnkhdk8rw6YoBGLSb5t6GrhvSB-z6JB09UVPrsdPax1Oexr4DVGZs0u3aUARNitHDtRhAqRKz3G7JHYaYWe3DpoxDPheOXpd_YZb_dLc-AN2NQX_W8FkCsQ_K7TgU7y1HwHXdU6l8X81FfV-U8APE1GqtZ7H101kJa9mn6gXaphfTkP4QMETnsBklXbmoWb4FdAoWGbn0R8DIvH8ukp5xMOOXuB1Z_QfxJOyl3OEZg6DkO4N9RqiACYtcZDH6as1jm4qJW0CMuWILtFZB_jRcrGVB2saGdnIlYKcvs3JCLZjMevEDJdW0zN6QlHZVpEQhj0OwiVSbQ8ZwUzQ_-IviriXFS2TmMnJogKZqkRwMR5qbr15turP5Kww9IHv8BJ2-y4z8-RVqhMX9yl-QPq6S2ycjdziyzUX5WpGMlFUUHnsv4Q_Ybv491VQK-0xIi0QwHLil6WXC5h8WiEumD_tgahbRHl7HwNzH2FBrbeJQzVmI2wigprFYN5Pmpe1O5baISie6ouVeunV3-8qB3mu_0NyKb98f55whmuTwTb6f7l35aNGVrNmgvLe9bBPKavqY3UsO99vAmNbpo5TUB2qQvjWGGaqn1bDm02Sv8r1P4LtSQjoiM3rQwVQOTDi0AtLkIlBw-_oLUN7Mlaw4lXt6YKob4kBc_JnHb6jl9JdFzvQd_xEXJH_7TVhCNyLL5rEkJckqxtuAiH-0NcJjXOLWVoIcMMM8S-kCpsrHnPHAROGFVCjdk2FUKJvC32njDfLygKBTC4apKNcjzfvhvQo6oAjLLAUFrZoAzzLnlKL3EqAPbPK3YiLrvqWUrmT63qAqNqnr2ZNTC9JuL_A9pKixaFCa83Emt5Zro9ITk5ZVX9d0QjhoxERIbB4WkkLaO7wTzAmBgsoLloXHF9imz6Nn6wqoR8SmaV-B16QXUJcdMqnIqThAr6XnUHgJNJl7kwEW2bSmrOHNak8ZNNSkn5H3zTFTaSoDmvoCbSWIrTlJ9WbmQv6IMBuZ14L4nMR1fteGJPkDE2iynSoHeJxwCNP-wgGhCq0eu6sPwSimSzWykFKov2wKyi8JrksCycP7hZ9Jw0EzcioG0GJ-OS-XlB9Mvjmiep8y8D_dJDDgkqbf5B46PwnPAEtzMfnUCNvHY_c3bZGBiA60DYHJx-wFfztYy9sKE9VTygoZ3eKfHlm2hEE-NKqpsiK8jASRLSJ6j9yu3R5moMYq39x5pSljrwQtEFIW6YZBDrPP9fTOforETeGT_OgmTa4f7u7Yr1HkR8K6c0CS_gQnESxJXmZvA9d3BdIuBMtWtAfKu73BzibfyPMNjIAsM0WiGudACz95KqRTU716Mz4RhkUbPZY4QPHD1D38iCls99THVf0-L2xTQnQ9esSn54LJTtHhhJ2soSlHAG0nf5m1I2ycU3c7RyaySfpRw1J3C2ptkEg3xD5ubK_QaZWXLyQDFhp1oqFQ8f3_i33Yn6ZkFGXwVjBAMhZmMiwiOEkByGxyuiOTeNWUFHnb6cUwRZBz33VMIUCyVPaqiSpnSWb1yy4MT_Kq_tFyqVUO-eF8GmY_Ac8d8hnTCweIBsxFaL2G5jeBZtSXFGR6pFRoWqG9wRrNgoDqTkl5f519fIbNe0JKJVMgZkWp3L5JUG5e5m-mkfItTqm6dJDRLGMS-wRDOal6j0XsD3Xz7dvmVonUX_zavudPmNZjhIrL5STHdVFKfi5Z9F0M1ee61SsolkWVVOwGETa3UtWc7Y5_fXN46OIHxxriXkMkFRv8I_HIoMu3HeMkoOJIYZtW56nF6etvTL4MSltk09mBmqogTP7K4P3NjfTAv5BXXYsimQSw0MK3FhO1nWzDKeZ5VMrXZhEyEba1RahjxtmFUC7itFFnJpIhzojJMfvNG-lk_Fh8zXcFotWH5Yg43Opd0ucxFXaeD4XAlDSjB9EHgO1Kvu4KAzPNkgCc7qnufpYzIx-ZoUsK2OZYt1m0OfUuFmJRSt73X4uD0sZOb56jIuuTYun79E25XnM6MkRArvq39sGpq0-5DtKqo0MkeMjRGbD9hcxMkZQh0NTmWqBtU4DLpsb03JMxJ9zom5BEeAI50KZQW1-bzXoBW5Ib3Q_l0Mi-eHpw00iWnp9aFM2vr2i03go8SRknuw92kLF4L3PyrvyFHKiHavd3IF2incwQLxjCXmuxqNAXsigVQ4Hjy6HojU81OhucDK404Y-1YM2Yq-mysVLlc63kqGKB5MEUuDj2RpXlMSZscgYIlAArh8A9ekY5s3T9IUDDFrV0ilO2GprgRx-8bVu9Qy_SHSCQqlXX0KtxsWCjwbvAjVTNeZtC12l8s2oCtcSRcz0ymsZjBoHkcmnR91nqHYQXq3VBvL5h7UKKkTm4nbE5C88oLdPr1zTQPW8sy068N68aFPyRw_Z5AuUdFnEqc9XJVEa1xygoTJT_645r2BTmMaZ-ib7SkAf8RytDfNolFxPg8OSWkoiq1MLeGu7b3Koeo9yFkZihXTVuUDxbvaQLhbRn2PnlnidyjssFft18FHZhUNBDt_2g498K5z4JHmHf9rbUID5gPrrXV3RA61wTAS7nDEZl1KYsRQt1HXXNkLrxg-k7PyHdYzUplDiSyT9TwX3gPNbFRuy7YcAcNSjpes6RFvIrmEWVHlRb9qdTzG9pLO-qnESBOijWbz69zvoF4iK4TaJsNxSgiQffYI2z8WiCT3pOt4Y6F_m_bUDdtzWUGmVktWxaPhYh2R6isXefTdtvQ==.DIpwOsqS5zKwHjqpSnpAD0cok5EF89CRZgEefE8oyN0=</keystore>
+          <keystore>#{SIGNING_KEY}</keystore>
         </signing-key>
       </signing-keys>
       <signature-verification-keys>
@@ -461,7 +461,7 @@
     </client-attestation>
   </facilities>
   <processing xmlns="https://curity.se/ns/conf/base">
-    <license-key></license-key>
+    <license-key>#{LICENSE_KEY}</license-key>
     <account-managers>
       <account-manager>
         <id>default-account-manager</id>
@@ -531,7 +531,7 @@
           <name>admin</name>
           <uid>0</uid>
           <gid>0</gid>
-          <password>$5$3LkNTqTbymtniipB$ZAC3sFJwjO5oxgwZP.xkBOjWM6s7BtPOAitpEtsC1W2</password>
+          <password>#{ADMIN_PASSWORD}</password>
           <ssh_keydir>/opt/idsvr/home/admin/.ssh</ssh_keydir>
           <homedir>/opt/idsvr/home/admin</homedir>
         </user>

@@ -1,0 +1,64 @@
+#
+# A minimal custom values file for the Curity Identity Server
+#
+
+replicaCount: 2
+
+image:
+  repository: custom_idsvr
+  tag: 8.0.0
+
+curity:
+  admin:
+    podLabels:
+      sidecar.istio.io/inject: 'true'
+    logging:
+      level: INFO
+    extraEnv:
+    - name: LICENSE_KEY
+      value: $LICENSE_KEY
+    - name: ADMIN_PASSWORD
+      value: $ADMIN_PASSWORD
+    - name: DB_PASSWORD
+      value: $DB_PASSWORD
+    - name: DB_CONNECTION
+      value: $DB_CONNECTION
+    - name: SYMMETRIC_KEY
+      value: $SYMMETRIC_KEY
+    - name: SIGNING_KEY
+      value: $SIGNING_KEY
+
+  runtime:
+    podLabels:
+      sidecar.istio.io/inject: 'true'
+    logging:
+      level: INFO
+    extraEnv:
+    - name: LICENSE_KEY
+      value: $LICENSE_KEY
+    - name: ADMIN_PASSWORD
+      value: $ADMIN_PASSWORD
+    - name: DB_PASSWORD
+      value: $DB_PASSWORD
+    - name: DB_CONNECTION
+      value: $DB_CONNECTION
+    - name: SYMMETRIC_KEY
+      value: $SYMMETRIC_KEY
+    - name: SIGNING_KEY
+      value: $SIGNING_KEY
+
+  config:
+    uiEnabled: true
+    skipInstall: true
+    backup: false
+    encryptionKey: $CONFIG_ENCRYPTION_KEY
+    configuration:
+      - configMapRef:
+         name: idsvr-configbackup
+         items:
+           - key: configbackup
+             path: idsvr-config-backup.xml
+
+# This example uses Istio's gateway to expose the Curity Identity Server over port 443
+ingress:
+  enabled: false

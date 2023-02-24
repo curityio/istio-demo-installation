@@ -1,15 +1,13 @@
 #!/bin/bash
 
-##########################################################################
-# A script to create external development certificates for the demo system
-# Istio issued certificates are instead used for internal URLs
-##########################################################################
+##############################################################################
+# A script to create external development certificates for the demo deployment
+##############################################################################
 
 #
 # Ensure that we are in the folder containing this script
 #
 cd "$(dirname "${BASH_SOURCE[0]}")"
-cd certs
 
 #
 # Point to the OpenSSL configuration file
@@ -61,7 +59,7 @@ fi
 openssl genrsa -out $SSL_CERT_FILE_PREFIX.key 2048
 
 openssl req \
-            -new \
+      -new \
 			-key $SSL_CERT_FILE_PREFIX.key \
 			-out $SSL_CERT_FILE_PREFIX.csr \
 			-subj "/CN=$WILDCARD_DOMAIN_NAME"
@@ -77,7 +75,7 @@ openssl x509 -req \
 			-out $SSL_CERT_FILE_PREFIX.pem \
 			-sha256 \
 			-days 36 \
-      -extfile server.ext
+      -extfile altnames.ext
 if [ $? -ne 0 ]; then
   exit 1
 fi
