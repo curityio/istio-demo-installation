@@ -63,7 +63,7 @@ CLIENT_POD="$(kubectl -n applications get pod -o name | grep sleep)"
 kubectl -n applications exec -it $CLIENT_POD -- sh
 ```
 
-From the client pod, make a `plain HTTP` call to the httpbin service, which has an endpoint that echoes back headers:
+From the client pod, make a `plain HTTP` call to an endpoint that returns API response headers:
 
 ```bash
 curl http://httpbin:8000/headers
