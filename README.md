@@ -50,26 +50,31 @@ Run it using the following parameters:
 
 ## Diagnose mTLS Requests
 
-Get a shell to a utility pod that uses sidecars and mTLS and runs in an `applications` namespace:
+Deploy `httpbin` and `curl` pods, that uses sidecars and mTLS, in an `applications` namespace.\
+This opens a shell in the curl pod:
 
 ```bash
-./deploy-curl.sh
+./deploy-apps.sh
 ```
 
-On the host, open a terminal window, then run this command to eavesdrop traffic sent from the curl client pod:
+Call httpbin over `plain HTTP`, which has an endpoint that echoes back headers:
 
 ```bash
-kubectl -n applications exec curlclient -c istio-proxy \
--- sudo tcpdump -l --immediate-mode -vv -s 0
+curl http://httpbin:8000/headers
 ```
 
-Then call the Curity Identity Server, with a plain HTTP request:
+This returns a header to provide evidence that mTLS was used between sidecars:
+
+```text
+"X-Forwarded-Client-Cert": "By=spiffe://cluster.local/ns/applications/sa/default; Subject=\"\";URI=spiffe://cluster.local/ns/applications/sa/default"
+```
+
+Call the Curity Identity Server from the curl pod in the same way:
 
 ```bash
 curl http://curity-idsvr-runtime-svc.curity:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration
 ```
 
-If plain HTTP was used, the tcpdump would show cleartext, but the request actually uses SSL and mTLS.\
 Run the following command to see how the proxy communicates with the target URL:
 
 ```bash
@@ -80,11 +85,10 @@ kubectl -n applications exec curlclient -c istio-proxy \
      openssl x509 -in /dev/stdin -text -noout
 ```
 
-The response shows how the connection uses SPIFFE mTLS certificate details:
+The response shows that the connection uses SPIFFE mTLS certificate details:
 
 ```text
- X509v3 Subject Alternative Name: critical
-  URI:spiffe://cluster.local/ns/curity/sa/default
+X509v3 Subject Alternative Name: critical URI:spiffe://cluster.local/ns/curity/sa/default
 ```
 
 ## More Information

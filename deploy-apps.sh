@@ -1,14 +1,22 @@
 #!/bin/bash
 
-################################################################################################
-# Deploy a minimal pod using sidecars and mTLS from which we can call the Curity Identity Server
-################################################################################################
+###########################################################
+# Deploy utility pods for testing and diagnosing mutual TLS
+###########################################################
 
+#
+# First deploy httpbin, as a utility that can echo back headers to provide evidence when mTLS is being used
+#
+kubectl -n applications apply -f resources/istio*/samples/httpbin/httpbin-nodeport.yaml
+
+#
+# Deploy a client and get a shell
+#
 cd "$(dirname "${BASH_SOURCE[0]}")"
 kubectl -n applications run curlclient --image=curlimages/curl -it -- sh
 
 #
-# Use these internal requests from inside the utility pod, to make mTLS requests routed via sidecars
+# Use these internal requests from inside the curl pod, to make mTLS requests routed via sidecars
 #
 # curl -u 'admin:Password1' 'http://curity-idsvr-admin-svc.curity:6749/admin/api/restconf/data?depth=unbounded&content=config'
 # curl http://curity-idsvr-runtime-svc.curity:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration
