@@ -73,7 +73,9 @@ This header provides evidence that mTLS was used between sidecars.\
 It also shows the `service workload identity` and `client workload identity`:
 
 ```text
-"X-Forwarded-Client-Cert": "By=spiffe://cluster.local/ns/applications/sa/httpbin; Subject=\"\";URI=spiffe://cluster.local/ns/applications/sa/sleep"
+X-Forwarded-Client-Cert: 
+  By=spiffe://cluster.local/ns/applications/sa/httpbin; 
+  Subject=spiffe://cluster.local/ns/applications/sa/sleep
 ```
 
 Calls from APIs inside the cluster to the Curity Identity Server will work in an equivalent way:
