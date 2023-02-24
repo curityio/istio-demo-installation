@@ -50,49 +50,55 @@ Run it using the following parameters:
 
 ## Diagnose mTLS Requests
 
-Deploy `httpbin` and `curl` pods, that uses sidecars and mTLS, in an `applications` namespace.\
-This opens a shell in the curl pod:
+Deploy some utility pods that use sidecars and mTLS, in an `applications` namespace:
 
 ```bash
-./deploy-apps.sh
+./deploy-utils.sh
 ```
 
-From the curl pod, call httpbin over `plain HTTP`, which has an endpoint that echoes back headers:
+Next get a shell to the client pod:
+
+```bash
+CLIENT_POD="$(kubectl -n applications get pod -o name | grep sleep)"
+kubectl -n applications exec -it $CLIENT_POD -- sh
+```
+
+From the client pod, make a `plain HTTP` call to the httpbin service, which has an endpoint that echoes back headers:
 
 ```bash
 curl http://httpbin:8000/headers
 ```
 
-This returns a header with the client workload identity.\
 This header provides evidence that mTLS was used between sidecars:
+It also shows the `service workload identity` and `client workload identity`:
 
 ```text
-"X-Forwarded-Client-Cert": "By=spiffe://cluster.local/ns/applications/sa/default; Subject=\"\";URI=spiffe://cluster.local/ns/applications/sa/default"
+"X-Forwarded-Client-Cert": "By=spiffe://cluster.local/ns/applications/sa/httpbin; Subject=\"\";URI=spiffe://cluster.local/ns/applications/sa/sleep"
 ```
 
-Call the Curity Identity Server from the curl pod in the same way:
+Calls from APIs inside the cluster to the Curity Identity Server will work in an equivalent way:
 
 ```bash
-curl http://curity-idsvr-runtime-svc.curity:8443/oauth/v2/oauth-anonymous/.well-known/openid-configuration
+curl http://curity-idsvr-runtime-svc.curity:8443/oauth/v2/oauth-anonymous/jwks
 ```
 
-Run the following command to see how the proxy communicates with the target URL:
+To see the X509 certificate details, run this command:
 
 ```bash
-kubectl -n applications exec curlclient -c istio-proxy \
+SERVICE_POD="$(kubectl -n applications get pod -o name | grep httpbin)"
+kubectl -n applications exec $SERVICE_POD -c istio-proxy \
      -- openssl s_client -showcerts \
      -connect curity-idsvr-runtime-svc.curity:8443 \
      -CAfile /var/run/secrets/istio/root-cert.pem | \
      openssl x509 -in /dev/stdin -text -noout
 ```
 
-This returns the service's SPIFFE identity:
+The response includes the Curity Identity Server's X509 SVID:
 
 ```text
-X509v3 Subject Alternative Name: critical URI:spiffe://cluster.local/ns/curity/sa/default
+X509v3 Subject Alternative Name: 
+  URI:spiffe://cluster.local/ns/curity/sa/default
 ```
-
-TODO: Get service accounts working properly
 
 ## More Information
 
