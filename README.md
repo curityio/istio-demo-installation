@@ -1,5 +1,9 @@
 # Curity Identity Server in an Istio Cluster
 
+An example setup where the Curity Identity Server runs in an Istio sidecar.\
+This provides a deployment option where you do not need to configure SSL certificates.\
+The platform then ensures that mutual TLS is used, for OAuth requests inside the cluster.
+
 ## Prerequisites
 
 - Install [Kubernetes in Docker (KIND)](https://kind.sigs.k8s.io/docs/user/quick-start/) for a development setup
@@ -84,7 +88,7 @@ Calls from APIs inside the cluster to the Curity Identity Server will work in an
 curl http://curity-idsvr-runtime-svc.curity:8443/oauth/v2/oauth-anonymous/jwks
 ```
 
-To see the X509 certificate details, run this command:
+To see the X509 certificate details, run this command from a terminal on the host computer:
 
 ```bash
 SERVICE_POD="$(kubectl -n applications get pod -o name | grep httpbin)"
@@ -95,7 +99,7 @@ kubectl -n applications exec $SERVICE_POD -c istio-proxy \
      openssl x509 -in /dev/stdin -text -noout
 ```
 
-The response includes the Curity Identity Server's X509 SVID:
+The response includes the X509 SVID for runtime nodes of the Curity Identity Server:
 
 ```text
 X509v3 Subject Alternative Name: 

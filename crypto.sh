@@ -21,7 +21,7 @@ fi
 #
 # Create keys for the Curity Identity Server
 #
-./crypto/identity-server-leys.sh
+./crypto/identity-server-keys.sh
 if [ $? -ne 0 ]; then
   exit 1
 fi
