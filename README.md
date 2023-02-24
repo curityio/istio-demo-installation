@@ -99,7 +99,7 @@ kubectl -n applications exec $SERVICE_POD -c istio-proxy \
      openssl x509 -in /dev/stdin -text -noout
 ```
 
-The response includes the X509 SVID for runtime nodes of the Curity Identity Server:
+The response shows the X509 SVID for runtime nodes of the Curity Identity Server:
 
 ```text
 X509v3 Subject Alternative Name: 

@@ -58,7 +58,6 @@ fi
 
 #
 # Dot source the script to create secure environment variables, so that they are exported
-# Note that the Helm chart creates additional SSL_KEY and SIGNING_KEY environment variables
 #
 . ./crypto/create-environment-variables.sh
 if [ $? -ne 0 ]; then
