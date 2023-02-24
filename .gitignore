@@ -4,4 +4,4 @@ license.json
 *.pem
 *.p12
 resources
-helm-values.yaml
+idsvr/helm-values.yaml
