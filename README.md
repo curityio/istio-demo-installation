@@ -69,7 +69,7 @@ From the client pod, make a `plain HTTP` call to an endpoint that returns API re
 curl http://httpbin:8000/headers
 ```
 
-This header provides evidence that mTLS was used between sidecars:
+This header provides evidence that mTLS was used between sidecars.\
 It also shows the `service workload identity` and `client workload identity`:
 
 ```text
