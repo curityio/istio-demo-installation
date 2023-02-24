@@ -30,7 +30,7 @@ Then edit the `/etc/hosts` file and add the following entries:
 Also add the following root certificate to your system's certificate trust store:
 
 ```text
-certs/curity.external.ca.pem
+./crypto/curity.external.ca.pem
 ```
 
 When you are finished testing, tear down the cluster with this command:
@@ -57,13 +57,14 @@ This opens a shell in the curl pod:
 ./deploy-apps.sh
 ```
 
-Call httpbin over `plain HTTP`, which has an endpoint that echoes back headers:
+From the curl pod, call httpbin over `plain HTTP`, which has an endpoint that echoes back headers:
 
 ```bash
 curl http://httpbin:8000/headers
 ```
 
-This returns a header to provide evidence that mTLS was used between sidecars:
+This returns a header with the client workload identity.\
+This header provides evidence that mTLS was used between sidecars:
 
 ```text
 "X-Forwarded-Client-Cert": "By=spiffe://cluster.local/ns/applications/sa/default; Subject=\"\";URI=spiffe://cluster.local/ns/applications/sa/default"
@@ -85,11 +86,13 @@ kubectl -n applications exec curlclient -c istio-proxy \
      openssl x509 -in /dev/stdin -text -noout
 ```
 
-The response shows that the connection uses SPIFFE mTLS certificate details:
+This returns the service's SPIFFE identity:
 
 ```text
 X509v3 Subject Alternative Name: critical URI:spiffe://cluster.local/ns/curity/sa/default
 ```
+
+TODO: Get service accounts working properly
 
 ## More Information
 
