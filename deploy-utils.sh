@@ -27,5 +27,5 @@ kubectl -n applications apply  -f utils/service.yaml
 # Use these requests from outside the cluster, to verify that Curity Identity Server external URLs are working
 #
 # - curl -k -u 'admin:Password1' 'https://admin.curity.local/admin/api/restconf/data?depth=unbounded&content=config'
-# - curl -k https://login.curity.local/oauth/v2/oauth-anonymous/.well-known/openid-configuration
+# - curl --cacert ./crypto/curity.external.ca.pem https://login.curity.local/oauth/v2/oauth-anonymous/.well-known/openid-configuration
 #

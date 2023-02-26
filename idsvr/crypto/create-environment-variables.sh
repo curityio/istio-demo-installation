@@ -57,14 +57,23 @@ DB_PASSWORD_RAW='Password1'
 DB_CONNECTION_RAW='jdbc:postgresql://postgres-svc/idsvr'
 
 #
-# Use the encryption script to get the encrypted token signing key
+# Get the token signing key in the Curity format
 #
 SIGNING_KEY_PASSWORD='Password1'
 SIGNING_KEY_BASE64="$(openssl base64 -in ../../crypto/signing.p12 | tr -d '\n')"
-SIGNING_KEY=$(docker exec -it curity bash -c \
+SIGNING_KEY_RAW=$(docker exec -it curity bash -c \
     "convertks --in-password $SIGNING_KEY_PASSWORD --in-alias curity.signing --in-entry-password $SIGNING_KEY_PASSWORD --in-keystore $SIGNING_KEY_BASE64")
 if [ $? -ne 0 ]; then
   echo "*** Problem encountered running the convertks command for the signing keypair: $SIGNING_KEY"
+  exit 1
+fi
+
+#
+# Encrypt the token signing key
+#
+SIGNING_KEY=$(docker exec -it curity bash -c "TYPE=base64keystore PLAINTEXT=$SIGNING_KEY_RAW ENCRYPTIONKEY=$CONFIG_ENCRYPTION_KEY /tmp/encrypt-util.sh")
+if [ $? -ne 0 ]; then
+  echo "*** Problem encountered encrypting the token signing key: $SIGNING_KEY"
   exit 1
 fi
 export SIGNING_KEY

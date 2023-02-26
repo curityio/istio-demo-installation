@@ -76,9 +76,6 @@ spec:
       role: curity-idsvr-admin
   mtls:
     mode: STRICT
-  portLevelMtls:
-    6789:
-      mode: DISABLE
 ---
 apiVersion: security.istio.io/v1beta1
 kind: PeerAuthentication
@@ -90,6 +87,3 @@ spec:
       role: curity-idsvr-runtime
   mtls:
     mode: STRICT
-  portLevelMtls:
-    6789:
-      mode: DISABLE

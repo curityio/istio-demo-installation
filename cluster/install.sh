@@ -39,7 +39,7 @@ fi
 # Install Istio components and activate a development option to enable eavesdropping of mTLS requests
 #
 cd istio*
-./bin/istioctl install --set profile=demo --set values.global.proxy.privileged=true -y
+./bin/istioctl install --set profile=demo -y
 if [ $? -ne 0 ]; then
   echo 'Problem encountered installing Istio'
   exit 1
