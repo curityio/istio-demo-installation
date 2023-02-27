@@ -43,9 +43,17 @@ When you are finished testing, tear down the cluster with this command:
 ./uninstall.sh
 ```
 
+## Use the Admin UI
+
+Once deployment has completed, login to the Admin UI with these details:
+
+- URL: https://admin.curity.local/admin
+- User: admin
+- Password: Password1
+
 ## Run a Demo Application
 
-The deployment includes a simple web client, using the hypermedia authentication API.\
+A simple web client is also deployed, using the hypermedia authentication API.\
 Run it using the following parameters:
 
 - URL: https://login.curity.local/demo-client.html
