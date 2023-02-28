@@ -1,5 +1,8 @@
 # Curity Identity Server in an Istio Cluster
 
+[![Quality](https://img.shields.io/badge/quality-demo-red)](https://curity.io/resources/code-examples/status/)
+[![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
+
 An example setup where the Curity Identity Server runs in an Istio sidecar.\
 This provides a deployment option where you do not need to configure SSL certificates.\
 The platform then ensures that mutual TLS is used, for OAuth requests inside the cluster.

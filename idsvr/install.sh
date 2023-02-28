@@ -59,7 +59,7 @@ fi
 #
 # Dot source the script to create secure environment variables, so that they are exported
 #
-. ./crypto/create-environment-variables.sh
+. ./crypto/create-secure-environment-variables.sh
 if [ $? -ne 0 ]; then
   exit 1
 fi
