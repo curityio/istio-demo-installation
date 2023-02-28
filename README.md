@@ -119,7 +119,7 @@ The response shows the X509 SVID for runtime nodes of the Curity Identity Server
 
 ```text
 X509v3 Subject Alternative Name: 
-  URI:spiffe://cluster.local/ns/curity/sa/default
+  URI:spiffe://cluster.local/ns/curity/sa/curity-idsvr-service-account
 ```
 
 ## More Information

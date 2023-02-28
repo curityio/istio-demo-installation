@@ -31,6 +31,8 @@ curity:
   runtime:
     podLabels:
       sidecar.istio.io/inject: 'true'
+    serviceAccount:
+      name: curity-idsvr-service-account
     logging:
       level: INFO
     extraEnv:
