@@ -9,9 +9,14 @@ The platform then ensures that mutual TLS is used, for OAuth requests inside the
 
 ## Prerequisites
 
-- Install [Kubernetes in Docker (KIND)](https://kind.sigs.k8s.io/docs/user/quick-start/) for a development setup
-- Install the [jq](https://stedolan.github.io/jq/download/) tool
-- Install the [envsubst](https://github.com/a8m/envsubst) tool
+First ensure that these tools are installed on your local computer:
+
+- [Docker](https://www.docker.com/products/docker-desktop)
+- [Kubernetes in Docker (KIND)](https://kind.sigs.k8s.io/docs/user/quick-start/)
+- [Helm](https://helm.sh/docs/intro/install/)
+- [openssl](https://www.openssl.org/)
+- [envsubst](https://github.com/a8m/envsubst)
+- [jq](https://stedolan.github.io/jq/download/)
 
 ## Deploy the System
 
