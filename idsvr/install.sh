@@ -16,20 +16,20 @@ cp ./hooks/pre-commit ./.git/hooks
 # Get the license key
 #
 if [ "$CURITY_LICENSE_FILE_PATH" == '' ]; then
-  echo '*** Please provide a CURITY_LICENSE_FILE_PATH environment variable, pointing to a license file for the Curity Identity Server'
+  echo 'Please provide a CURITY_LICENSE_FILE_PATH environment variable, pointing to a license file for the Curity Identity Server'
   exit 1
 fi
 
 export LICENSE_KEY=$(cat $CURITY_LICENSE_FILE_PATH | jq -r .License)
 if [ "$LICENSE_KEY" == '' ]; then
-  echo '*** An invalid license file was provided for the Curity Identity Server'
+  echo 'An invalid license file was provided for the Curity Identity Server'
   exit 1
 fi
 
 #
 # Build a custom docker image containing some extra resources
 #
-docker build -f idsvr/Dockerfile -t custom_idsvr:8.0.0 .
+docker build -f idsvr/Dockerfile -t custom_idsvr:latest .
 if [ $? -ne 0 ]; then
   echo 'Problem encountered building the Identity Server custom docker image'
   exit 1
@@ -39,7 +39,7 @@ cd idsvr
 #
 # Load it into the KIND docker registry
 #
-kind load docker-image custom_idsvr:8.0.0 --name curity
+kind load docker-image custom_idsvr:latest --name curity
 if [ $? -ne 0 ]; then
   echo 'Problem encountered loading the Identity Server custom docker image into the KIND registry'
   exit 1
@@ -57,22 +57,36 @@ if [ $? -ne 0 ]; then
 fi
 
 #
-# Dot source the script to create secure environment variables, so that they are exported
+# Run a script to create a secret containing secure environment variables
 #
-. ./crypto/create-secure-environment-variables.sh
+./crypto/create-secure-environment-variables.sh
 if [ $? -ne 0 ]; then
   exit 1
 fi
-cd ..
+
+#
+# Export the config encryption key
+#
+export CONFIG_ENCRYPTION_KEY="$(cat ../crypto/configencryption.key)"
 
 #
 # Run envsubst to provide the final Helm chart
 #
 envsubst < ./helm-values-template.yaml > ./helm-values.yaml
 if [ $? -ne 0 ]; then
-  echo '*** Problem encountered creating the cluster.yaml file'
+  echo 'Problem encountered creating the cluster.yaml file'
   exit 1
 fi
+
+#
+# TODELETE: Get a branch of the Helm chart that supports the latest tag in KIND setups
+#
+cd ../resources
+rm -rf idsvr-helm 2>/dev/null
+git clone https://github.com/curityio/idsvr-helm
+cd idsvr-helm
+git checkout fix/image-pull-policy-cluster-conf
+cd ../../idsvr
 
 #
 # Run the Curity Identity Server Helm Chart to deploy an admin node and two runtime nodes
@@ -80,7 +94,8 @@ fi
 helm repo add curity https://curityio.github.io/idsvr-helm
 helm repo update
 helm uninstall curity --namespace curity 2>/dev/null
-helm install curity curity/idsvr --values=helm-values.yaml --namespace curity
+#helm install curity curity/idsvr --values=helm-values.yaml --namespace curity
+helm install curity ../resources/idsvr-helm/idsvr --values=helm-values.yaml  --namespace curity
 if [ $? -ne 0 ]; then
   echo 'Problem encountered running the Helm Chart for the Curity Identity Server'
   exit 1

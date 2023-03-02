@@ -22,6 +22,6 @@ kubectl -n curity create configmap init-script-configmap --from-file='./idsvr-da
 kubectl -n curity delete -f service.yaml 2>/dev/null
 kubectl -n curity apply -f  service.yaml
 if [ $? -ne 0 ]; then
-  echo "Problem encountered deploying the PostgreSQL service"
+  echo 'Problem encountered deploying the PostgreSQL service'
   exit 1
 fi

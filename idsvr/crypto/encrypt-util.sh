@@ -1,7 +1,6 @@
 #!/bin/bash
 
 ####################################################################################################
-# This is copied to the target Docker container
 # Implements xalan encryption to get a protected environment variable for the Curity Identity Server
 ####################################################################################################
 
@@ -137,12 +136,12 @@ CLASSPATH="$IDSVR_HOME/lib/*:$IDSVR_HOME/lib/xml-tools/*"
 # Check we are running from a Curity Identity Server environment
 #
 if [ "$IDSVR_HOME" == '' ]; then
-  echo "The IDSVR_HOME environment variable has not been configured"
+  echo 'The IDSVR_HOME environment variable has not been configured'
   exit 1
 fi
 
 #
-# The entry point
+# The entry point calls the appropriate function
 #
 if [ "$TYPE" == 'plaintext' ]; then
 
