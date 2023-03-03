@@ -50,7 +50,7 @@ fi
 #
 # Create external SSL certificates, used by the Istio ingress on a development computer
 #
-#./ingress-certificates/create.sh
+./ingress-certificates/create.sh
 if [ $? -ne 0 ]; then
   echo 'Problem encountered creating certificates for the Istio ingress'
   exit 1
