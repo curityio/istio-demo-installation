@@ -40,17 +40,6 @@ if [ $? -ne 0 ]; then
 fi
 
 #
-# Create the config map referenced in the helm-values.yaml file
-# This deploys XML configuration to containers at /opt/idsvr/etc/init/configmap-config.xml
-#
-kubectl -n curity delete configmap idsvr-configbackup 2>/dev/null
-kubectl -n curity create configmap idsvr-configbackup --from-file='configbackup=./idsvr-config-backup.xml'
-if [ $? -ne 0 ]; then
-  echo 'Problem encountered creating the config map for the Identity Server'
-  exit 1
-fi
-
-#
 # Run a script to create a secret containing secure environment variables
 #
 ./crypto/create-secure-environment-variables.sh
@@ -89,7 +78,7 @@ helm repo add curity https://curityio.github.io/idsvr-helm
 helm repo update
 helm uninstall curity --namespace curity 2>/dev/null
 #helm install curity curity/idsvr --values=helm-values.yaml --namespace curity
-helm install curity ../resources/idsvr-helm/idsvr --values=helm-values.yaml  --namespace curity
+helm install curity ../resources/idsvr-helm/idsvr --values=helm-values.yaml  --namespace curity --create-namespace
 if [ $? -ne 0 ]; then
   echo 'Problem encountered running the Helm Chart for the Curity Identity Server'
   exit 1

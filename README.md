@@ -3,13 +3,22 @@
 [![Quality](https://img.shields.io/badge/quality-demo-red)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
-An example development setup where the Curity Identity Server runs in an Istio sidecar.\
+A deployment code example where the Curity Identity Server runs in an Istio sidecar.\
 This provides a deployment option where you do not need to configure SSL certificates.\
 The platform then ensures that mutual TLS is used, for OAuth requests inside the cluster.
 
+## Cloud Deployments
+
+This is a development setup, but the Istio behaviors can be easily adapted to any cloud system.\
+To do so, follow one of the following tutorials to update the resources in the `cluster` folder:
+
+- [Deploy to Google Kubernetes Engine (GKE)](https://curity.io/resources/learn/kubernetes-gke-idsvr-kong-phantom/)
+- [https://curity.io/resources/learn/kubernetes-aws-eks-idsvr-deployment/](https://curity.io/resources/learn/kubernetes-aws-eks-idsvr-deployment/)
+- [Deploy to Azure Kubernetes Service (AKS)](https://curity.io/resources/learn/kubernetes-azure-aks-idsvr-deployment/)
+
 ## Prerequisites
 
-First ensure that these tools are installed on your local computer:
+To deploy the development example, ensure that these tools are installed on your local computer:
 
 - [Docker](https://www.docker.com/products/docker-desktop)
 - [Kubernetes in Docker (KIND)](https://kind.sigs.k8s.io/docs/user/quick-start/)
@@ -19,14 +28,14 @@ First ensure that these tools are installed on your local computer:
 
 ## Deploy the System
 
-First create cryptographic keys fore the Curity Identity Server.\
-This also creates external ingress SSL certificates for the local development system:
+First, create cryptographic keys for the Curity Identity Server.\
+This includes external ingress SSL certificates for the local development system:
 
 ```bash
 ./crypto.sh
 ```
 
-Copy a license file into the `idsvr` folder and then run the install:
+Copy a license file into the `idsvr` folder and then run the main install:
 
 ```bash
 ./install.sh
@@ -58,18 +67,44 @@ Once deployment has completed, login to the Admin UI with these details:
 - User: admin
 - Password: Password1
 
-## Run a Demo Application
-
-A simple web client is also deployed, using the hypermedia authentication API.\
-Run it using the following parameters:
-
-- URL: https://login.curity.local/demo-client.html
-- User: john.doe
-- Password: Password1
-
 ## Run OAuth Requests Inside the Cluster
 
+Deploy the [Istio httpbin example](https://github.com/istio/istio/blob/master/samples/httpbin/httpbin.yaml) as an example microservice:
 
+```bash
+./microservice/install.sh
+```
+
+Get a shell in the microservice pod:
+
+```bash
+SERVICE_POD="$(kubectl -n applications get pod -o name)"
+kubectl -n applications exec -it $SERVICE_POD -- sh
+```
+
+Call the Curity Identity Server with an internal OAuth request that uses mutual TLS:
+
+```bash
+curl http://curity-idsvr-runtime-svc.curity:8443/oauth/v2/oauth-anonymous/jwks
+```
+
+To see how the microservice connects to the Curity Identity Server, run this command.\
+The Istio sidecar deals with the mutual TLS details of the connection:
+
+```bash
+kubectl -n applications exec $SERVICE_POD -c istio-proxy \
+     -- openssl s_client -showcerts \
+     -connect curity-idsvr-runtime-svc.curity:8443 \
+     -CAfile /var/run/secrets/istio/root-cert.pem | \
+     openssl x509 -in /dev/stdin -text -noout
+```
+
+The response shows the X509 issued identity for runtime nodes of the Curity Identity Server:
+
+```text
+X509v3 Subject Alternative Name: 
+  URI:spiffe://cluster.local/ns/curity/sa/curity-idsvr-service-account
+```
 
 ## More Information
 

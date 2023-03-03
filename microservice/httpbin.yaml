@@ -16,6 +16,13 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: applications
+  labels:
+    istio-injection: enabled
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -54,7 +61,7 @@ spec:
         version: v1
     spec:
       containers:
-      - image: docker.io/kennethreitz/httpbin
+      - image: custom_httpbin:latest
         imagePullPolicy: IfNotPresent
         name: httpbin
         ports:
