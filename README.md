@@ -68,7 +68,7 @@ SERVICE_POD="$(kubectl -n applications get pod -o name)"
 ```
 
 Call the Curity Identity Server with an internal OAuth request that uses mutual TLS.\
-Note that the microservices uses plain HTTP URLs:
+Note that the microservice uses only a plain HTTP URL:
 
 ```bash
 kubectl -n applications exec $SERVICE_POD -- \
