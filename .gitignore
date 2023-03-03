@@ -1,7 +1,5 @@
 .DS_Store
 license.json
+istio-*
 *.key
 *.pem
-*.p12
-resources
-idsvr/helm-values.yaml

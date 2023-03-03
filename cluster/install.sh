@@ -5,30 +5,21 @@
 ####################################################################
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
-cd ..
 
 #
 # Create a KIND cluster
 #
 kind delete cluster --name=curity 2>/dev/null
-kind create cluster --name=curity --config=./cluster/cluster.yaml
+kind create cluster --name=curity --config=./cluster.yaml
 if [ $? -ne 0 ]; then
   echo 'Problem encountered creating the Kubernetes cluster'
   exit 1
 fi
 
 #
-# Create a folder for temporary resources
-#
-if [ -d ./resources ]; then
-  rm -rf resources
-fi
-mkdir resources
-cd resources
-
-#
 # Download Istio
 #
+rm -rf istio-* 2>/dev/null
 curl -L https://istio.io/downloadIstio | sh -
 if [ $? -ne 0 ]; then
   echo 'Problem encountered downloading Istio'
@@ -38,32 +29,42 @@ fi
 #
 # Install Istio components and activate a development option to enable eavesdropping of mTLS requests
 #
-cd istio*
-./bin/istioctl install --set profile=demo -y
+./istio-*/bin/istioctl install --set profile=demo -y
 if [ $? -ne 0 ]; then
   echo 'Problem encountered installing Istio'
   exit 1
 fi
-cd ../..
 
 #
-# This patch is specific to local computer setups and would not be run for a cloud deployment
-# It enables the host computer to send requests for port 443 to the ingress controller's container
+# In local development setups, this sends port 443 requests to the ingress controller's container
 # This relies on port 443 being included in extraPortMappings in the cluster.yaml file
 # https://kind.sigs.k8s.io/docs/user/ingress
 #
 kubectl patch service    -n istio-system istio-ingressgateway -p '{"spec":{"type":"NodePort"}}'
-kubectl patch deployment -n istio-system istio-ingressgateway --patch-file ./cluster/istio-development-ports.json
+kubectl patch deployment -n istio-system istio-ingressgateway --patch-file ./ingress-development-ports.json
 if [ $? -ne 0 ]; then
   echo 'Problem encountered patching the Istio ingress controller'
   exit 1
 fi
 
 #
-# Create namespaces
+# Create external SSL certificates, used by the Istio ingress on a development computer
 #
-kubectl apply -f cluster/namespaces.yaml
+#./ingress-certificates/create.sh
 if [ $? -ne 0 ]; then
-  echo 'Problem encountered creating Kubernetes namespaces'
+  echo 'Problem encountered creating certificates for the Istio ingress'
+  exit 1
+fi
+
+#
+# Create a Kubernetes secret for the external SSL certificate, to apply to the Istio ingress
+# Note that the secret must be created within the istio-system namespace
+#
+kubectl -n istio-system delete secret curity-external-tls 2>/dev/null
+kubectl -n istio-system create secret tls curity-external-tls \
+  --cert=./ingress-certificates/curity.external.ssl.pem \
+  --key=./ingress-certificates/curity.external.ssl.key
+if [ $? -ne 0 ]; then
+  echo 'Problem encountered creating the Kubernetes TLS secret for the Curity Identity Server'
   exit 1
 fi

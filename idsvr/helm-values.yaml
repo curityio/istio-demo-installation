@@ -5,7 +5,7 @@
 replicaCount: 2
 
 image:
-  repository: custom_idsvr
+  repository: curity.azurecr.io/curity/idsvr
   tag: latest
 
 curity:
@@ -26,11 +26,8 @@ curity:
 
   config:
     uiEnabled: true
-    skipInstall: true
-    backup: false
-    encryptionKey: $CONFIG_ENCRYPTION_KEY
-    environmentVariableSecrets:
-      - idsvr-secure-properties
+    password: Password1
+    skipInstall: false
 
 # Custom resource definitions for Istio's gateway expose the Curity Identity Server over port 443
 ingress:
