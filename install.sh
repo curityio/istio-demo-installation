@@ -25,7 +25,7 @@ fi
 #
 # Run the deployment of the Curity Identity Server
 #
-./idsvr/install.sh
+#./idsvr/install.sh
 if [ $? -ne 0 ]; then
   exit 1
 fi

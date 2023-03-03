@@ -6,14 +6,13 @@
 ##################################################################################################
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
-CURITY_DOCKER_IMAGE='curity.azurecr.io/curity/idsvr:latest'
 
 #
 # First run a temporary Curity Docker container that can be called to do crypto work
 #
 echo 'Downloading the utility idsvr docker container ...'
 docker rm -f curity 1>/dev/null 2>&1
-docker run -d -p 6749:6749 -e PASSWORD=Password1 --user root --name curity "$CURITY_DOCKER_IMAGE" 1>/dev/null
+docker run -d -p 6749:6749 -e PASSWORD=Password1 --user root --name curity curity.azurecr.io/curity/idsvr:latest 1>/dev/null
 if [ $? -ne 0 ]; then
   echo '*** Problem encountered starting the Curity docker image'
   exit 1
@@ -107,7 +106,7 @@ fi
 #
 # Create a secret, whose keys are exposed to pods as protected environment variables
 #
-kubectl -n curity delete secret idsvr-secure-properties
+kubectl -n curity delete secret idsvr-secure-properties 2>/dev/null
 kubectl -n curity create secret generic idsvr-secure-properties \
   --from-literal="ADMIN_PASSWORD=$ADMIN_PASSWORD" \
   --from-literal="DB_PASSWORD=$DB_PASSWORD" \

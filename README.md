@@ -3,7 +3,7 @@
 [![Quality](https://img.shields.io/badge/quality-demo-red)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
-An example setup where the Curity Identity Server runs in an Istio sidecar.\
+An example development setup where the Curity Identity Server runs in an Istio sidecar.\
 This provides a deployment option where you do not need to configure SSL certificates.\
 The platform then ensures that mutual TLS is used, for OAuth requests inside the cluster.
 
@@ -16,20 +16,19 @@ First ensure that these tools are installed on your local computer:
 - [Helm](https://helm.sh/docs/intro/install/)
 - [openssl](https://www.openssl.org/)
 - [envsubst](https://github.com/a8m/envsubst)
-- [jq](https://stedolan.github.io/jq/download/)
 
 ## Deploy the System
 
-First create cryptographic keys and external SSL certificates:
+First create cryptographic keys fore the Curity Identity Server.\
+This also creates external ingress SSL certificates for the local development system:
 
 ```bash
 ./crypto.sh
 ```
 
-Next run the installation, supplying the path to a license file for the Curity Identity Server:
+Copy a license file into the `idsvr` folder and then run the install:
 
 ```bash
-export CURITY_LICENSE_FILE_PATH=~/Desktop/license.json
 ./install.sh
 ```
 
@@ -39,7 +38,7 @@ Then edit the `/etc/hosts` file and add the following entries:
 127.0.0.1  login.curity.local admin.curity.local
 ```
 
-Also add the following root certificate to your system's certificate trust store:
+Also add the following external root certificate to your system's certificate trust store:
 
 ```text
 ./crypto/curity.external.ca.pem
@@ -68,59 +67,9 @@ Run it using the following parameters:
 - User: john.doe
 - Password: Password1
 
-## Diagnose mTLS Requests
+## Run OAuth Requests Inside the Cluster
 
-Deploy some utility pods that use sidecars and mTLS, in an `applications` namespace:
 
-```bash
-./deploy-utils.sh
-```
-
-Next get a shell to the client pod:
-
-```bash
-CLIENT_POD="$(kubectl -n applications get pod -o name | grep sleep)"
-kubectl -n applications exec -it $CLIENT_POD -- sh
-```
-
-From the client pod, make a `plain HTTP` call to an endpoint that returns API response headers:
-
-```bash
-curl http://httpbin:8000/headers
-```
-
-This header provides evidence that mTLS was used between sidecars.\
-It also shows the `service workload identity` and `client workload identity`:
-
-```text
-X-Forwarded-Client-Cert: 
-  By=spiffe://cluster.local/ns/applications/sa/httpbin; 
-  Subject=spiffe://cluster.local/ns/applications/sa/sleep
-```
-
-Calls from APIs inside the cluster to the Curity Identity Server will work in an equivalent way:
-
-```bash
-curl http://curity-idsvr-runtime-svc.curity:8443/oauth/v2/oauth-anonymous/jwks
-```
-
-To see the X509 certificate details, run this command from a terminal on the host computer:
-
-```bash
-SERVICE_POD="$(kubectl -n applications get pod -o name | grep httpbin)"
-kubectl -n applications exec $SERVICE_POD -c istio-proxy \
-     -- openssl s_client -showcerts \
-     -connect curity-idsvr-runtime-svc.curity:8443 \
-     -CAfile /var/run/secrets/istio/root-cert.pem | \
-     openssl x509 -in /dev/stdin -text -noout
-```
-
-The response shows the X509 SVID for runtime nodes of the Curity Identity Server:
-
-```text
-X509v3 Subject Alternative Name: 
-  URI:spiffe://cluster.local/ns/curity/sa/curity-idsvr-service-account
-```
 
 ## More Information
 

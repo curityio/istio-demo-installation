@@ -15,14 +15,8 @@ cp ./hooks/pre-commit ./.git/hooks
 #
 # Get the license key
 #
-if [ "$CURITY_LICENSE_FILE_PATH" == '' ]; then
-  echo 'Please provide a CURITY_LICENSE_FILE_PATH environment variable, pointing to a license file for the Curity Identity Server'
-  exit 1
-fi
-
-export LICENSE_KEY=$(cat $CURITY_LICENSE_FILE_PATH | jq -r .License)
-if [ "$LICENSE_KEY" == '' ]; then
-  echo 'An invalid license file was provided for the Curity Identity Server'
+if [ ! -f './idsvr/license.json' ]; then
+  echo 'Please provide a license.json file in the idsvr folder in order to deploy the system'
   exit 1
 fi
 

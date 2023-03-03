@@ -9,14 +9,12 @@ image:
   tag: latest
 
 curity:
+  adminUiHttp: true
   admin:
     podLabels:
       sidecar.istio.io/inject: 'true'
     logging:
       level: INFO
-    extraEnv:
-    - name: LICENSE_KEY
-      value: $LICENSE_KEY
 
   runtime:
     podLabels:
@@ -25,21 +23,12 @@ curity:
       name: curity-idsvr-service-account
     logging:
       level: INFO
-    extraEnv:
-    - name: LICENSE_KEY
-      value: $LICENSE_KEY
 
   config:
     uiEnabled: true
     skipInstall: true
     backup: false
     encryptionKey: $CONFIG_ENCRYPTION_KEY
-    configuration:
-      - configMapRef:
-          name: idsvr-configbackup
-          items:
-            - key: configbackup
-              path: idsvr-config-backup.xml
     environmentVariableSecrets:
       - idsvr-secure-properties
 
