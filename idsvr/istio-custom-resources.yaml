@@ -60,8 +60,9 @@ spec:
   selector:
     matchLabels:
       role: curity-idsvr-admin
-  mtls:
-    mode: STRICT
+  portLevelMtls:
+    6749:
+      mode: STRICT
 ---
 apiVersion: security.istio.io/v1beta1
 kind: PeerAuthentication
@@ -71,5 +72,6 @@ spec:
   selector:
     matchLabels:
       role: curity-idsvr-runtime
-  mtls:
-    mode: STRICT
+  portLevelMtls:
+    8443:
+      mode: STRICT
