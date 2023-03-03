@@ -21,7 +21,6 @@ fi
 #
 # Deploy Istio specific custom resources for ingress and mTLS
 #
-kubectl -n curity delete -f ./istio-custom-resources.yaml 2>/dev/null
 kubectl -n curity apply  -f ./istio-custom-resources.yaml
 if [ $? -ne 0 ]; then
   echo 'Problem encountered creating Istio resources for the Curity Identity Server'
