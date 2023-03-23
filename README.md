@@ -83,11 +83,11 @@ Run this command to show the server X509 identity for connections to the Curity 
 kubectl -n applications exec $APPLICATION_POD -c istio-proxy \
      -- openssl s_client -showcerts \
      -connect curity-idsvr-runtime-svc.curity:8443 \
-     -CAfile /var/run/secrets/istio/root-cert.pem | \
+     -CAfile /var/run/secrets/istio/root-cert.pem 2>/dev/null | \
      openssl x509 -in /dev/stdin -text -noout
 ```
 
-The response includes the SPIFFE identity associated to runtime nodes of the Curity Identity Server:
+The response includes the SPIFFE identity:
 
 ```text
 X509v3 Subject Alternative Name: 

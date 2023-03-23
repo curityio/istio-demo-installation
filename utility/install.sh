@@ -7,7 +7,7 @@
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 #
-# Create a namespace for applications
+# Configure the namespace for applications
 #
 kubectl delete -f ./namespace.yaml 2>/dev/null
 kubectl apply -f ./namespace.yaml
