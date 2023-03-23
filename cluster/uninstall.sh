@@ -5,4 +5,4 @@
 ###############################################
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
-kind delete cluster --name=curity
+kind delete cluster --name=istio-demo

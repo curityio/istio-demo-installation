@@ -3,7 +3,7 @@
 [![Quality](https://img.shields.io/badge/quality-demo-red)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
-A deployment code example where the Curity Identity Server runs in an Istio sidecar.\
+A deployment code example where the Curity Identity Server runs alongside an Istio sidecar.\
 This provides a deployment option where no internal SSL certificates are needed.\
 The platform then ensures that mutual TLS is used, for OAuth requests inside the cluster.
 
@@ -53,7 +53,8 @@ Later, when you are finished testing, tear down the cluster with this command:
 
 ## Use the Admin UI
 
-Once deployment has completed, login to the Admin UI and complete the initial setup wizard:
+Once deployment has completed, login to the Admin UI and complete the initial setup wizard.\
+Do so by uploading a `license.json` file, then accepting all default options.
 
 - URL: https://admin.curity.local/admin
 - User: admin
@@ -61,31 +62,32 @@ Once deployment has completed, login to the Admin UI and complete the initial se
 
 ## Run OAuth Requests Inside the Cluster
 
-The deployment also includes the [Istio httpbin example](https://github.com/istio/istio/blob/master/samples/httpbin/httpbin.yaml), to act as a microservice pod:
+The deployment also includes the [Istio sleep example](https://github.com/istio/istio/blob/master/samples/sleep/sleep.yaml).\
+This will act as an application pod that calls endpoints of the Curity Identity Server:
 
 ```bash
-SERVICE_POD="$(kubectl -n applications get pod -o name)"
+APPLICATION_POD="$(kubectl -n applications get pod -o name)"
 ```
 
 Call the Curity Identity Server with an internal OAuth request that uses mutual TLS.\
 Note that the microservice uses only a plain HTTP URL:
 
 ```bash
-kubectl -n applications exec $SERVICE_POD -- \
+kubectl -n applications exec $APPLICATION_POD -- \
   curl -s http://curity-idsvr-runtime-svc.curity:8443/oauth/v2/oauth-anonymous/jwks
 ```
 
-Run this command to see how the Istio sidecar upgrades the connection to use mutual TLS:
+Run this command to show the server X509 identity for connections to the Curity Identity Server:
 
 ```bash
-kubectl -n applications exec $SERVICE_POD -c istio-proxy \
+kubectl -n applications exec $APPLICATION_POD -c istio-proxy \
      -- openssl s_client -showcerts \
      -connect curity-idsvr-runtime-svc.curity:8443 \
      -CAfile /var/run/secrets/istio/root-cert.pem | \
      openssl x509 -in /dev/stdin -text -noout
 ```
 
-The response includes the SPIFFE identity for runtime nodes of the Curity Identity Server:
+The response includes the SPIFFE identity associated to runtime nodes of the Curity Identity Server:
 
 ```text
 X509v3 Subject Alternative Name: 

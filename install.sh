@@ -23,9 +23,9 @@ if [ $? -ne 0 ]; then
 fi
 
 #
-# Also deploy an example microservice that will call the Curity Identity Server
+# Also deploy utility pod that can make HTTP requests to the Curity Identity Server
 #
-./microservice/install.sh
+./utility/install.sh
 if [ $? -ne 0 ]; then
   exit 1
 fi
