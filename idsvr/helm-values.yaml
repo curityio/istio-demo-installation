@@ -1,112 +1,34 @@
 #
-# A customised values file for the Curity Identity Server
+# A minimal custom values file for the Curity Identity Server, for an Istio deployment
 #
 
 replicaCount: 2
 
-# Point to the custom image produced by our docker file
 image:
-  repository: custom_idsvr
-  tag: 7.3.1
-  pullPolicy: Never
-  pullSecret:
-
-nameOverride: ""
-fullnameOverride: ""
-networkpolicy:
-  enabled: true
+  repository: curity.azurecr.io/curity/idsvr
+  tag: latest
 
 curity:
-  healthCheckPort: 4465
-  adminUiPort: 6749
-  adminUiHttp: false
-
+  adminUiHttp: true
   admin:
-    role: admin
-    service:
-      type: ClusterIP
-      port: 6789
-    livenessProbe:
-      timeoutSeconds: 1
-      failureThreshold: 3
-      periodSeconds: 10
-      initialDelaySeconds: 120
-    readinessProbe:
-      timeoutSeconds: 1
-      failureThreshold: 3
-      successThreshold: 3
-      periodSeconds: 10
-      initialDelaySeconds: 120
+    podLabels:
+      sidecar.istio.io/inject: 'true'
     logging:
-      image: "busybox:latest"
       level: INFO
-      stdout: false
-      logs:
-#        - audit
-#        - request
-#        - cluster
-#        - confsvc
-#        - confsvc-internal
-#        - post-commit-scripts
 
   runtime:
-    role: default
-    service:
-      type: ClusterIP
-      port: 8443
-    livenessProbe:
-      timeoutSeconds: 1
-      failureThreshold: 3
-      periodSeconds: 10
-      initialDelaySeconds: 120
-    readinessProbe:
-      timeoutSeconds: 1
-      failureThreshold: 3
-      successThreshold: 3
-      periodSeconds: 10
-      initialDelaySeconds: 120
+    podLabels:
+      sidecar.istio.io/inject: 'true'
+    serviceAccount:
+      name: curity-idsvr-service-account
     logging:
-      image: "busybox:latest"
       level: INFO
-      stdout: false
-      logs:
-#        - audit
-#        - request
-#        - cluster
-#        - confsvc
-#        - confsvc-internal
-#        - post-commit-scripts
 
-  # Deploy new pods with the latest backed up configuration
   config:
     uiEnabled: true
-    backup: false
     password: Password1
-    encryptionKey:
-    environmentVariableSecret:
-    configurationConfigMap: idsvr-configmap
-    configurationConfigMapItemName: idsvr-config-backup.xml
-    configurationSecret:
-    configurationSecretItemName:
+    skipInstall: false
 
-# The Curity Identity Server is exposed over HTTPS port 443 using Istio custom resource definitions
+# Custom resource definitions for Istio's gateway expose the Curity Identity Server over port 443
 ingress:
   enabled: false
-
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}

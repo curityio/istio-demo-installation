@@ -1,4 +1,5 @@
 .DS_Store
-resources
-certs/curity.*
-idsvr/license.json
+license.json
+istio-*
+*.key
+*.pem

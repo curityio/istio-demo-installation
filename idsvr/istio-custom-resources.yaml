@@ -1,0 +1,85 @@
+#
+# Deploy Istio specific resources for ingress and mutual TLS
+#
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: curity-idsvr-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: curity-external-tls
+    hosts:
+    - login.curity.local
+    - admin.curity.local
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: curity-idsvr-admin-virtual-service
+spec:
+  hosts:
+  - admin.curity.local
+  gateways:
+  - curity-idsvr-gateway
+  http:
+  - route:
+    - destination:
+        host: curity-idsvr-admin-svc
+        port:
+          number: 6749
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: curity-idsvr-runtime-virtual-service
+spec:
+  hosts:
+  - login.curity.local
+  gateways:
+  - curity-idsvr-gateway
+  http:
+  - route:
+    - destination:
+        host: curity-idsvr-runtime-svc
+        port:
+          number: 8443
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: idsvr-admin-mtls
+spec:
+  selector:
+    matchLabels:
+      role: curity-idsvr-admin
+  mtls:
+    mode: STRICT
+  portLevelMtls:
+    4465:
+      mode: DISABLE
+    4466:
+      mode: DISABLE
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: idsvr-runtime-mtls
+spec:
+  selector:
+    matchLabels:
+      role: curity-idsvr-runtime
+  mtls:
+    mode: STRICT
+  portLevelMtls:
+    4465:
+      mode: DISABLE
+    4466:
+      mode: DISABLE
